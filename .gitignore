@@ -1,40 +1,114 @@
+############################
+# Maven / Java
+############################
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+
+*.class
+*.jar
+*.war
+*.ear
+
+.mvn/timing.properties
+dependency-reduced-pom.xml
+
+############################
+# Kotlin
+############################
 .kotlin
 
-### IntelliJ IDEA ###
+############################
+# IntelliJ IDEA
+############################
 .idea/
 .idea/modules.xml
 .idea/jarRepositories.xml
 .idea/compiler.xml
 .idea/libraries/
+
 *.iws
 *.iml
 *.ipr
 
-### Eclipse ###
+out/
+
+############################
+# Eclipse
+############################
 .apt_generated
 .classpath
 .factorypath
 .project
-.settings
+.settings/
 .springBeans
 .sts4-cache
 
-### NetBeans ###
+############################
+# NetBeans
+############################
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
+
 build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### VS Code ###
+############################
+# VS Code
+############################
 .vscode/
 
-### Mac OS ###
+############################
+# OS Files
+############################
 .DS_Store
+Thumbs.db
+
+############################
+# Logs
+############################
+logs/
+*.log
+
+############################
+# Environment / Secrets
+############################
+.env
+.env.*
+!.env.example
+
+############################
+# Temporary Files
+############################
+tmp/
+temp/
+*.tmp
+*~
+
+############################
+# Docker / Containers
+############################
+docker-data/
+postgres-data/
+mosquitto-data/
+mosquitto-log/
+
+*.pid
+*.seed
+
+############################
+# Coverage / Reports
+############################
+coverage/
+reports/
+
+############################
+# Misc
+############################
+*.swp
+*.swo
