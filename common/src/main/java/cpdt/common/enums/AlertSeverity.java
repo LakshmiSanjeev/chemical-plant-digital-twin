@@ -1,6 +1,6 @@
 package cpdt.common.enums;
 
-public enum Alerts {
+public enum AlertSeverity {
     INFO,
     WARNING,
     CRITICAL
