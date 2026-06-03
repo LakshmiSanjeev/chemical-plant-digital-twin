@@ -1,13 +1,26 @@
 package cpdt.common.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum MeasurementType {
-    TEMPERATURE,
-    PRESSURE,
-    FLOW_RATE,
-    LEVEL,
-    PH,
-    VIBRATION,
-    GAS_CONCENTRATION,
-    VOLTAGE,
-    CURRENT
+
+    TEMPERATURE("Temperature", "°C"),
+    PRESSURE("Pressure", "bar"),
+    FLOW_RATE("Flow Rate", "L/min"),
+    LEVEL("Level", "%"),
+    PH("pH", "pH"),
+    VIBRATION("Vibration", "mm/s"),
+    GAS_CONCENTRATION("Gas Concentration", "ppm"),
+    VOLTAGE("Voltage", "V"),
+    CURRENT("Current", "A");
+
+    private final String displayName;
+    private final String unit;
+
+    MeasurementType(String displayName, String unit) {
+        this.displayName = displayName;
+        this.unit = unit;
+    }
+
 }

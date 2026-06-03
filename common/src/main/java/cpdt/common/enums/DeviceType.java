@@ -1,26 +1,37 @@
 package cpdt.common.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum DeviceType {
-    // Reactor unit
-    // could be deployed anywhere with separate location enum
-    // else there could separate devices later
-    TEMPERATURE_SENSOR,
-    PRESSURE_SENSOR,
-    FLOW_SENSOR,
-    CONTROL_VALVE,
 
-    // Storage tank area
-    LEVEL_SENSOR,
-    GAS_SENSOR,
-    PH_SENSOR,
+    // Process Sensors
+    TEMPERATURE_SENSOR("TEMP"),
+    PRESSURE_SENSOR("PRESS"),
+    FLOW_SENSOR("FLOW"),
+    LEVEL_SENSOR("LEVEL"),
+    GAS_SENSOR("GAS"),
+    PH_SENSOR("PH"),
 
-    // Cooling system
-    VIBRATION_SENSOR,
-    PUMP,
-    TANK,
-    HEAT_EXCHANGER,
+    // Mechanical Condition Monitoring
+    VIBRATION_SENSOR("VIB"),
 
-    // Electrical units
-    CURRENT_SENSOR,
-    VOLTAGE_MONITOR
+    // Actuators
+    CONTROL_VALVE("VALVE"),
+    PUMP("PUMP"),
+
+    // Process Equipment
+    TANK("TANK"),
+    HEAT_EXCHANGER("HX"),
+
+    // Electrical Monitoring
+    CURRENT_SENSOR("CURR"),
+    VOLTAGE_MONITOR("VOLT");
+
+    private final String prefix;
+
+    DeviceType(String prefix) {
+        this.prefix = prefix;
+    }
+
 }
