@@ -23,12 +23,12 @@ public abstract class Device {
     @Setter
     private long lastUpdated;
 
-    protected Device(String deviceId, String name, DeviceType type, Location location, DeviceStatus status){
+    protected Device(String deviceId, String name, DeviceType type, Location location){
         this.deviceId = deviceId;
         this.name = name;
         this.type = type;
         this.location = location;
-        this.status = status;
+        this.status = DeviceStatus.ONLINE;
         this.lastUpdated = System.currentTimeMillis();
     }
 }

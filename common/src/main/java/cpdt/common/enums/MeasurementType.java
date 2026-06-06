@@ -7,8 +7,9 @@ public enum MeasurementType {
 
     TEMPERATURE("Temperature", "°C"),
     PRESSURE("Pressure", "bar"),
+    HUMIDITY("Humidity", "% RH"),
     FLOW_RATE("Flow Rate", "L/min"),
-    LEVEL("Level", "%"),
+    FILL_LEVEL("Level", "%"),
     PH("pH", "pH"),
     VIBRATION("Vibration", "mm/s"),
     GAS_CONCENTRATION("Gas Concentration", "ppm"),

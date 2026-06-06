@@ -10,6 +10,7 @@ public record TelemetryPacket(
         String deviceId,
         DeviceType deviceType,
         long timestamp,
-        Map<MeasurementType, Double> values,
+        MeasurementType measurementType,
+        double value,
         DeviceStatus status
 ) {}

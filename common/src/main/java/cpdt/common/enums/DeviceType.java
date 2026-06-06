@@ -19,6 +19,7 @@ public enum DeviceType {
     // Actuators
     CONTROL_VALVE("VALVE"),
     PUMP("PUMP"),
+    MOTOR("MOT"),
 
     // Process Equipment
     TANK("TANK"),
