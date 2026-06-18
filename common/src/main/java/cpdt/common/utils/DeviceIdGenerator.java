@@ -6,17 +6,17 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public final class IdGenerator {
+public final class DeviceIdGenerator {
 
     private static final Map<DeviceType, AtomicInteger> DEVICE_COUNTERS = new ConcurrentHashMap<>();
 
-    private IdGenerator() {
+    private DeviceIdGenerator() {
         throw new UnsupportedOperationException("Utility class cannot be instantiated");
     }
 
     public static String generateDeviceId(DeviceType deviceType) {
-        AtomicInteger counter = DEVICE_COUNTERS.computeIfAbsent(deviceType,
-                                                     key -> new AtomicInteger(0));
+        AtomicInteger counter =
+                DEVICE_COUNTERS.computeIfAbsent(deviceType, key -> new AtomicInteger(0));
         int sequenceNumber = counter.incrementAndGet();
         return String.format("%s-%03d", deviceType.getPrefix(), sequenceNumber);
     }

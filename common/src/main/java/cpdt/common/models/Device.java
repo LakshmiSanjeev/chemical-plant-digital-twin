@@ -11,7 +11,6 @@ import lombok.ToString;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString
 public abstract class Device {
-
     @EqualsAndHashCode.Include
     private final String deviceId;
     private final String name;

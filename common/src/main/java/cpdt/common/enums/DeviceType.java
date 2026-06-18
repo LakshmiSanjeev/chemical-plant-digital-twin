@@ -4,7 +4,6 @@ import lombok.Getter;
 
 @Getter
 public enum DeviceType {
-
     // Process Sensors
     TEMPERATURE_SENSOR("TEMP"),
     PRESSURE_SENSOR("PRESS"),
@@ -34,5 +33,4 @@ public enum DeviceType {
     DeviceType(String prefix) {
         this.prefix = prefix;
     }
-
 }
