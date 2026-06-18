@@ -27,9 +27,6 @@ public class PressureSensor extends SensorDevice {
     private static final double THERMAL_ZERO_SHIFT_PER_10C = 0.0025; // bar shift per 10C deviation
     private static final double THERMAL_SPAN_SHIFT_PER_10C = 0.0015; // percentage gain shift per 10C deviation
 
-    // ADC properties
-    private static final int ADC_RESOLUTION_BITS = 16;
-
     // Hardware baseline noise floor independent of accuracy calculation
     private static final double ELECTRONIC_NOISE_FLOOR_BAR = 0.0005;
 
@@ -134,14 +131,5 @@ public class PressureSensor extends SensorDevice {
         double deltaTimeHours = deltaTimeSeconds / 3600.0;
         double stepStandardDeviation = Math.sqrt(deltaTimeHours * DRIFT_VARIANCE_PER_HOUR);
         accumulatedLongTermDrift += random.nextGaussian() * stepStandardDeviation;
-    }
-
-    private double applyAdcQuantization(double value) {
-        double adcLevels = Math.pow(2, ADC_RESOLUTION_BITS) - 1;
-        double normalized = (value - minRange) / (maxRange - minRange);
-        normalized = Math.clamp(normalized, 0.0, 1.0);
-
-        double quantized = Math.round(normalized * adcLevels);
-        return minRange + (quantized / adcLevels) * (maxRange - minRange);
     }
 }

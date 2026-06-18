@@ -12,6 +12,8 @@ import java.util.Objects;
 
 public abstract class SensorDevice extends Device {
 
+    protected static final int ADC_RESOLUTION_BITS = 16;
+
     // by assumption that all sensors process data of a single type.
     @Getter
     private final MeasurementType measurementType;
@@ -64,4 +66,12 @@ public abstract class SensorDevice extends Device {
     }
 
     public abstract double getReading();
+
+    protected double applyAdcQuantization(double value) {
+        double adcLevels = Math.pow(2, ADC_RESOLUTION_BITS) - 1;
+        double normalized = (value - minRange) / (maxRange - minRange);
+        normalized = Math.clamp(normalized, 0.0, 1.0);
+        double quantized = Math.round(normalized * adcLevels);
+        return minRange + (quantized / adcLevels) * (maxRange - minRange);
+    }
 }

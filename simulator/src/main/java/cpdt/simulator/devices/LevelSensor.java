@@ -1,0 +1,173 @@
+package cpdt.simulator.devices;
+
+import cpdt.common.enums.DeviceType;
+import cpdt.common.enums.MeasurementType;
+import cpdt.common.enums.ProcessArea;
+import cpdt.common.models.Location;
+import cpdt.simulator.SensorDevice;
+import cpdt.simulator.environment.PlantEnvironment;
+
+import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
+
+/**
+ * Industrial-grade Guided Wave Radar (GWR) Level Transmitter Simulation.
+ * Fully unified architecture matching the Pressure, Temperature, and Flow designs,
+ * while preserving native fluid surface physics, vapor space dielectric effects, and sloshing.
+ */
+public class LevelSensor extends SensorDevice {
+
+    // physical operating limits of the sensor hardware (meters / percentage)
+    private static final double DEFAULT_MIN_RANGE = 0.0;
+    private static final double DEFAULT_MAX_RANGE = 12.0;
+
+    // Smart radar transmitter accuracy base specification (Percentage of Full Scale)
+    private static final double BASE_ACCURACY_PERCENT_FS = 0.05;
+
+    // Vapor space dielectric properties affecting time-of-flight speed of light deviations
+    private static final double CALIBRATION_REFERENCE_DIELECTRIC = 1.0; // Vacuum/Dry Air
+    private static final double VAPOR_DIELECTRIC_TEMP_COEFFICIENT = 0.0003; // Increase per degree C deviation
+    // Upper/Lower block distances (dead zones) near top flange and bottom anchor
+    private static final double RADAR_DEAD_ZONE_METERS = 0.15;
+
+    // NATIVE PHYSICS PRESERVED: Drift variance matched to heavy-duty radar crystal oscillator aging
+    private static final double DRIFT_VARIANCE_PER_HOUR = 0.0003 * 0.0003;
+
+    // internal hydrodynamic surface level state
+    private double smoothedLevel;
+    // tank geometry / surface area damping time constant
+    private final double levelTimeConstantSeconds;
+    // previous measurement timestamp
+    private long lastReadingTimestamp;
+
+    // UNIFORMITY CORRECTION: Stateful continuous Random Walk tracking
+    private double accumulatedLongTermDrift = 0.0;
+
+    public LevelSensor(String deviceId, String name, Location location, PlantEnvironment plantEnvironment) {
+        super(deviceId, name, DeviceType.LEVEL_SENSOR, location, MeasurementType.LEVEL, plantEnvironment);
+        Objects.requireNonNull(location, "Location cannot be null");
+        this.minRange = DEFAULT_MIN_RANGE;
+        this.maxRange = DEFAULT_MAX_RANGE;
+
+        // UNIFORMITY CORRECTION: Native 16-bit physical hardware LSB step size
+        this.resolution = (maxRange - minRange) / (Math.pow(2, ADC_RESOLUTION_BITS) - 1);
+
+        this.lowAlarmLimit = 1.0;
+        this.highAlarmLimit = 11.0;
+        this.accuracy = (BASE_ACCURACY_PERCENT_FS / 100.0) * (maxRange - minRange);
+        this.hysteresis = 0.1;
+        this.samplingIntervalMs = 1000; // Level loops typically run slower due to massive tank capacities
+
+        double initialEnvironmentLevel = plantEnvironment.getValue(location.area(), MeasurementType.LEVEL);
+        this.smoothedLevel = initialEnvironmentLevel;
+        this.lastReadingTimestamp = System.currentTimeMillis();
+        this.levelTimeConstantSeconds = determineLevelTimeConstant(location.area());
+        setCurrentValue(initialEnvironmentLevel);
+    }
+
+    @Override
+    public double getReading() {
+        long currentTimestamp = System.currentTimeMillis();
+        double deltaTimeSeconds = (currentTimestamp - lastReadingTimestamp) / 1000.0;
+        if (deltaTimeSeconds <= 0.0) {
+            return getCurrentValue();
+        }
+        lastReadingTimestamp = currentTimestamp;
+        double processLevel = getEnvironmentValue();
+
+        // Exponential Moving Average (EMA) filter representing vessel capacitance / physical surface inertia
+        double alpha = 1.0 - Math.exp(-deltaTimeSeconds / levelTimeConstantSeconds);
+        smoothedLevel += alpha * (processLevel - smoothedLevel);
+
+        // Fetch physical coupled variables for vapor phase propagation velocity modifications
+        double processTemperature = getPlantEnvironment().getValue(getLocation().area(), MeasurementType.TEMPERATURE);
+
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+
+        // Native Hydrodynamic Orifice Physics / Propagation Math Model
+        double measuredLevel = applyVaporDielectricCorrection(smoothedLevel, processTemperature);
+        measuredLevel = applyPhysicalDeadZones(measuredLevel);
+
+        // Native noise profiles preserved
+        double radarElectronicNoise = generateElectronicNoise(random);
+        double surfaceSloshNoise = generateSurfaceSloshNoise(measuredLevel, random);
+
+        // UNIFORMITY CORRECTION: Stateful drift step execution
+        updateLongTermDrift(deltaTimeSeconds, random);
+
+        double physicalLevel = measuredLevel + radarElectronicNoise + surfaceSloshNoise + accumulatedLongTermDrift;
+
+        // UNIFORMITY CORRECTION: Single-layer physical ADC quantization tracking with hard limits
+        double digitizedLevel = applyAdcQuantization(physicalLevel);
+        digitizedLevel = Math.clamp(digitizedLevel, minRange, maxRange);
+
+        setCurrentValue(digitizedLevel);
+        return digitizedLevel;
+    }
+
+    private double determineLevelTimeConstant(ProcessArea area) {
+        return switch (area) {
+            case STORAGE_SECTION -> 60.0;     // Huge inventory, slow shifts
+            case DISTILLATION_SECTION -> 15.0; // Column reboiler/sump dynamics
+            case REACTOR_SECTION -> 10.0;     // Aggressive agitation response
+            case FEED_SECTION -> 8.0;         // Quick surge tank stabilization
+            case UTILITIES_SECTION -> 20.0;    // Boiler drum / raw water reserves
+            case COOLING_SECTION -> 25.0;      // Cooling tower basin thermal inertia
+            case PIPELINE_SECTION -> 2.0;      // Knock-out pot (extremely fast)
+        };
+    }
+
+    /**
+     * NATIVE PHYSICS: Radar time-of-flight scales inversely with the square root of vapor space dielectric constant.
+     * High process temperatures increase vapor density, shifting dielectric property from dry air calibrations.
+     */
+    private double applyVaporDielectricCorrection(double nominalLevel, double currentTemperature) {
+        double temperatureDeviation = Math.max(0.0, currentTemperature - 25.0);
+        double vaporDielectric = CALIBRATION_REFERENCE_DIELECTRIC + (temperatureDeviation * VAPOR_DIELECTRIC_TEMP_COEFFICIENT);
+
+        // Radar signals slow down in higher dielectrics, creating a false perception of a lower liquid level
+        return nominalLevel / Math.sqrt(vaporDielectric);
+    }
+
+    /**
+     * NATIVE PHYSICS: Radar and Ultrasonic units cannot detect items inside their physical near-field blanking distance
+     * (blocking distance at top) or beneath the lower reference limit (dead space at bottom).
+     */
+    private double applyPhysicalDeadZones(double level) {
+        if (level > (maxRange - RADAR_DEAD_ZONE_METERS)) {
+            return maxRange - RADAR_DEAD_ZONE_METERS; // Saturation at top flange
+        }
+        if (level < (minRange + RADAR_DEAD_ZONE_METERS)) {
+            return minRange; // Complete loss of pulse signal echo at absolute bottom tank floor
+        }
+        return level;
+    }
+
+    private double generateElectronicNoise(ThreadLocalRandom random) {
+        // High-frequency sensor reference clock jitter
+        return random.nextGaussian() * (accuracy * 0.20);
+    }
+
+    private double generateSurfaceSloshNoise(double currentLevel, ThreadLocalRandom random) {
+        ProcessArea area = getLocation().area();
+        // Agitation, boiling, and inflow cause mechanical surface waves ("sloshing")
+        double sloshIntensity = switch (area) {
+            case REACTOR_SECTION -> 0.080;      // Intense mechanical stirrers
+            case DISTILLATION_SECTION -> 0.045; // Boiling / weeping trays
+            case PIPELINE_SECTION -> 0.030;     // High velocity continuous inflow turbulence
+            case FEED_SECTION -> 0.020;         // Standard buffer tank inflows
+            default -> 0.005;                   // Stagnant storage / baseline surface ripple
+        };
+
+        // Slosh effect amplifies moderately as liquid approaches mid-tank due to less wall boundary dampening
+        double normalizationFactor = Math.sin(Math.PI * (currentLevel / maxRange));
+        return random.nextGaussian() * sloshIntensity * (0.5 + Math.abs(normalizationFactor));
+    }
+
+    // UNIFORMITY CORRECTION: Incremental random walk calculation matching pressure class architecture
+    private void updateLongTermDrift(double deltaTimeSeconds, ThreadLocalRandom random) {
+        double deltaTimeHours = deltaTimeSeconds / 3600.0;
+        double stepStandardDeviation = Math.sqrt(deltaTimeHours * DRIFT_VARIANCE_PER_HOUR);
+        accumulatedLongTermDrift += random.nextGaussian() * stepStandardDeviation;
+    }
+}

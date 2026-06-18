@@ -23,8 +23,6 @@ public class TemperatureSensor extends SensorDevice {
     // IEC 60751 Class A RTD approximation
     private static final double IEC_CLASS_A_BASE_ERROR = 0.15;
     private static final double IEC_CLASS_A_TEMP_COEFFICIENT = 0.002;
-    // ADC properties
-    private static final int ADC_RESOLUTION_BITS = 16;
     // RTD self-heating effect
     private static final double DEFAULT_SELF_HEATING_OFFSET = 0.08;
 
@@ -150,15 +148,5 @@ public class TemperatureSensor extends SensorDevice {
         double deltaTimeHours = deltaTimeSeconds / 3600.0;
         double stepStandardDeviation = Math.sqrt(deltaTimeHours * DRIFT_VARIANCE_PER_HOUR);
         accumulatedLongTermDrift += random.nextGaussian() * stepStandardDeviation;
-    }
-
-    // UNIFORMITY CORRECTION: Straight mathematical conversion mapping direct to resolution constraints
-    private double applyAdcQuantization(double value) {
-        double adcLevels = Math.pow(2, ADC_RESOLUTION_BITS) - 1;
-        double normalized = (value - minRange) / (maxRange - minRange);
-        normalized = Math.clamp(normalized, 0.0, 1.0);
-
-        double quantized = Math.round(normalized * adcLevels);
-        return minRange + (quantized / adcLevels) * (maxRange - minRange);
     }
 }
