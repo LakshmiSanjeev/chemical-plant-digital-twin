@@ -17,54 +17,43 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class FlowSensor extends SensorDevice {
 
-    // physical operating limits of the sensor hardware (m³/h)
     private static final double DEFAULT_MIN_RANGE = 0.0;
     private static final double DEFAULT_MAX_RANGE = 150.0;
-
-    // Smart DP transmitter accuracy base specification (Percentage of Full Scale)
     private static final double BASE_ACCURACY_PERCENT_FS = 0.10;
-
-    // Fluid density variation approximations based on local temperature deviations
     private static final double THERMAL_REFERENCE_TEMP_C = 25.0;
-    private static final double FLUID_DENSITY_TEMP_COEFFICIENT = -0.0004; // Density decrease per degree C
-
-
-    // Low-flow cut-off threshold (typically 2-5% of max range) to avoid square-root noise explosion
+    private static final double FLUID_DENSITY_TEMP_COEFFICIENT = -0.0004;
     private static final double LOW_FLOW_CUTOFF_PERCENT = 0.03;
 
-    // NATIVE PHYSICS PRESERVED: Drift variance matched to DP cell stability profiles
-    private static final double DRIFT_VARIANCE_PER_HOUR = 0.0005 * 0.0005;
-
-    // internal hydrodynamic flow state
     private double smoothedFlowRate;
-    // hydrodynamic lag / pipe flow development time constant
     private final double flowTimeConstantSeconds;
-    // previous measurement timestamp
     private long lastReadingTimestamp;
-
-    // UNIFORMITY CORRECTION: Stateful continuous Random Walk tracking
-    private double accumulatedLongTermDrift = 0.0;
 
     public FlowSensor(String deviceId, String name, Location location, PlantEnvironment plantEnvironment) {
         super(deviceId, name, DeviceType.FLOW_SENSOR, location, MeasurementType.FLOW_RATE, plantEnvironment);
         Objects.requireNonNull(location, "Location cannot be null");
+
         this.minRange = DEFAULT_MIN_RANGE;
         this.maxRange = DEFAULT_MAX_RANGE;
 
-        // UNIFORMITY CORRECTION: Native 16-bit physical hardware LSB step size
-        this.resolution = (maxRange - minRange) / (Math.pow(2, ADC_RESOLUTION_BITS) - 1);
+        calculateHardwareResolution();
+
+        this.driftVariancePerHour = 0.0005 * 0.0005;
 
         this.lowAlarmLimit = 2.0;
         this.highAlarmLimit = 135.0;
+
         this.accuracy = (BASE_ACCURACY_PERCENT_FS / 100.0) * (maxRange - minRange);
+
         this.hysteresis = 0.5;
-        this.samplingIntervalMs = 250; // Flow loops usually run faster than pressure/temperature
+
+        this.samplingIntervalMs = 250;
 
         double initialEnvironmentFlow = plantEnvironment.getValue(location.area(), MeasurementType.FLOW_RATE);
         this.smoothedFlowRate = initialEnvironmentFlow;
+        setCurrentValue(initialEnvironmentFlow);
+
         this.lastReadingTimestamp = System.currentTimeMillis();
         this.flowTimeConstantSeconds = determineFlowTimeConstant(location.area());
-        setCurrentValue(initialEnvironmentFlow);
     }
 
     @Override
@@ -77,32 +66,23 @@ public class FlowSensor extends SensorDevice {
         lastReadingTimestamp = currentTimestamp;
         double processFlow = getEnvironmentValue();
 
-        // Exponential Moving Average (EMA) filter representing flow development delay
         double alpha = 1.0 - Math.exp(-deltaTimeSeconds / flowTimeConstantSeconds);
         smoothedFlowRate += alpha * (processFlow - smoothedFlowRate);
 
-        // Fetch physical coupled variables for fluid density calculations
         double processTemperature = getPlantEnvironment().getValue(getLocation().area(), MeasurementType.TEMPERATURE);
 
         ThreadLocalRandom random = ThreadLocalRandom.current();
 
-        // Native Hydrodynamic Orifice Physics Math Model
         double measuredFlow = applyFluidDensityCorrection(smoothedFlowRate, processTemperature);
         measuredFlow = applyLowFlowCutoff(measuredFlow);
 
-        // Native noise profiles preserved
         double dpCellElectronicNoise = generateElectronicNoise(random);
         double turbulentFluctuation = generateTurbulentFluctuation(measuredFlow, random);
-
-        // UNIFORMITY CORRECTION: Stateful drift step execution
         updateLongTermDrift(deltaTimeSeconds, random);
-
         double physicalFlow = measuredFlow + dpCellElectronicNoise + turbulentFluctuation + accumulatedLongTermDrift;
 
-        // UNIFORMITY CORRECTION: Single-layer physical ADC quantization tracking with hard limits
         double digitizedFlow = applyAdcQuantization(physicalFlow);
         digitizedFlow = Math.clamp(digitizedFlow, minRange, maxRange);
-
         setCurrentValue(digitizedFlow);
         return digitizedFlow;
     }
@@ -164,13 +144,4 @@ public class FlowSensor extends SensorDevice {
         // Turbulent noise intensity scales dynamically with the velocity profile (flow rate)
         return random.nextGaussian() * currentFlow * turbulenceIntensity;
     }
-
-    // UNIFORMITY CORRECTION: Incremental random walk calculation matching pressure class architecture
-    private void updateLongTermDrift(double deltaTimeSeconds, ThreadLocalRandom random) {
-        double deltaTimeHours = deltaTimeSeconds / 3600.0;
-        double stepStandardDeviation = Math.sqrt(deltaTimeHours * DRIFT_VARIANCE_PER_HOUR);
-        accumulatedLongTermDrift += random.nextGaussian() * stepStandardDeviation;
-    }
-
-    // UNIFORMITY CORRECTION: Straight mathematical conversion mapping direct to resolution constraints
 }

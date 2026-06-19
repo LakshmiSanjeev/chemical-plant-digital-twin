@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
 
 public abstract class SensorDevice extends Device {
 
@@ -49,6 +50,10 @@ public abstract class SensorDevice extends Device {
     @Getter
     private final PlantEnvironment plantEnvironment;
 
+    protected double accumulatedLongTermDrift = 0.0;
+
+    protected double driftVariancePerHour;
+
     protected SensorDevice(String deviceId, String name, DeviceType deviceType, Location location,
                            MeasurementType measurementType, PlantEnvironment plantEnvironment){
         super(deviceId, name, deviceType, location);
@@ -56,16 +61,12 @@ public abstract class SensorDevice extends Device {
         this.plantEnvironment = Objects.requireNonNull(plantEnvironment, "PlantEnvironment cannot be null");
     }
 
-    protected boolean isOutOfPhysicalBounds() {
-        return currentValue < minRange || currentValue > maxRange;
-    }
+    public abstract double getReading();
 
     protected double getEnvironmentValue() {
         Location location = getLocation();
         return plantEnvironment.getValue(location.area(), measurementType);
     }
-
-    public abstract double getReading();
 
     protected double applyAdcQuantization(double value) {
         double adcLevels = Math.pow(2, ADC_RESOLUTION_BITS) - 1;
@@ -73,5 +74,16 @@ public abstract class SensorDevice extends Device {
         normalized = Math.clamp(normalized, 0.0, 1.0);
         double quantized = Math.round(normalized * adcLevels);
         return minRange + (quantized / adcLevels) * (maxRange - minRange);
+    }
+
+    protected void updateLongTermDrift(double deltaTimeSeconds, ThreadLocalRandom random) {
+        double deltaTimeHours = deltaTimeSeconds / 3600.0;
+        double stepStandardDeviation = Math.sqrt(deltaTimeHours * driftVariancePerHour);
+        accumulatedLongTermDrift += random.nextGaussian() * stepStandardDeviation;
+    }
+
+    protected void calculateHardwareResolution() {
+        double adcLevels = Math.pow(2, ADC_RESOLUTION_BITS) - 1;
+        this.resolution = (this.maxRange - this.minRange) / adcLevels;
     }
 }

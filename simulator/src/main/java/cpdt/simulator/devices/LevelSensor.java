@@ -17,7 +17,6 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class LevelSensor extends SensorDevice {
 
-    // physical operating limits of the sensor hardware (meters / percentage)
     private static final double DEFAULT_MIN_RANGE = 0.0;
     private static final double DEFAULT_MAX_RANGE = 12.0;
 
@@ -30,9 +29,6 @@ public class LevelSensor extends SensorDevice {
     // Upper/Lower block distances (dead zones) near top flange and bottom anchor
     private static final double RADAR_DEAD_ZONE_METERS = 0.15;
 
-    // NATIVE PHYSICS PRESERVED: Drift variance matched to heavy-duty radar crystal oscillator aging
-    private static final double DRIFT_VARIANCE_PER_HOUR = 0.0003 * 0.0003;
-
     // internal hydrodynamic surface level state
     private double smoothedLevel;
     // tank geometry / surface area damping time constant
@@ -40,29 +36,33 @@ public class LevelSensor extends SensorDevice {
     // previous measurement timestamp
     private long lastReadingTimestamp;
 
-    // UNIFORMITY CORRECTION: Stateful continuous Random Walk tracking
-    private double accumulatedLongTermDrift = 0.0;
 
     public LevelSensor(String deviceId, String name, Location location, PlantEnvironment plantEnvironment) {
         super(deviceId, name, DeviceType.LEVEL_SENSOR, location, MeasurementType.LEVEL, plantEnvironment);
         Objects.requireNonNull(location, "Location cannot be null");
+
         this.minRange = DEFAULT_MIN_RANGE;
         this.maxRange = DEFAULT_MAX_RANGE;
 
-        // UNIFORMITY CORRECTION: Native 16-bit physical hardware LSB step size
-        this.resolution = (maxRange - minRange) / (Math.pow(2, ADC_RESOLUTION_BITS) - 1);
+        calculateHardwareResolution();
+
+        this.driftVariancePerHour = 0.0003 * 0.0003;
 
         this.lowAlarmLimit = 1.0;
         this.highAlarmLimit = 11.0;
+
         this.accuracy = (BASE_ACCURACY_PERCENT_FS / 100.0) * (maxRange - minRange);
+
         this.hysteresis = 0.1;
+
         this.samplingIntervalMs = 1000; // Level loops typically run slower due to massive tank capacities
 
         double initialEnvironmentLevel = plantEnvironment.getValue(location.area(), MeasurementType.LEVEL);
         this.smoothedLevel = initialEnvironmentLevel;
+        setCurrentValue(initialEnvironmentLevel);
+
         this.lastReadingTimestamp = System.currentTimeMillis();
         this.levelTimeConstantSeconds = determineLevelTimeConstant(location.area());
-        setCurrentValue(initialEnvironmentLevel);
     }
 
     @Override
@@ -75,32 +75,23 @@ public class LevelSensor extends SensorDevice {
         lastReadingTimestamp = currentTimestamp;
         double processLevel = getEnvironmentValue();
 
-        // Exponential Moving Average (EMA) filter representing vessel capacitance / physical surface inertia
         double alpha = 1.0 - Math.exp(-deltaTimeSeconds / levelTimeConstantSeconds);
         smoothedLevel += alpha * (processLevel - smoothedLevel);
 
-        // Fetch physical coupled variables for vapor phase propagation velocity modifications
         double processTemperature = getPlantEnvironment().getValue(getLocation().area(), MeasurementType.TEMPERATURE);
 
         ThreadLocalRandom random = ThreadLocalRandom.current();
 
-        // Native Hydrodynamic Orifice Physics / Propagation Math Model
         double measuredLevel = applyVaporDielectricCorrection(smoothedLevel, processTemperature);
         measuredLevel = applyPhysicalDeadZones(measuredLevel);
 
-        // Native noise profiles preserved
         double radarElectronicNoise = generateElectronicNoise(random);
         double surfaceSloshNoise = generateSurfaceSloshNoise(measuredLevel, random);
-
-        // UNIFORMITY CORRECTION: Stateful drift step execution
         updateLongTermDrift(deltaTimeSeconds, random);
-
         double physicalLevel = measuredLevel + radarElectronicNoise + surfaceSloshNoise + accumulatedLongTermDrift;
 
-        // UNIFORMITY CORRECTION: Single-layer physical ADC quantization tracking with hard limits
         double digitizedLevel = applyAdcQuantization(physicalLevel);
         digitizedLevel = Math.clamp(digitizedLevel, minRange, maxRange);
-
         setCurrentValue(digitizedLevel);
         return digitizedLevel;
     }
@@ -162,12 +153,5 @@ public class LevelSensor extends SensorDevice {
         // Slosh effect amplifies moderately as liquid approaches mid-tank due to less wall boundary dampening
         double normalizationFactor = Math.sin(Math.PI * (currentLevel / maxRange));
         return random.nextGaussian() * sloshIntensity * (0.5 + Math.abs(normalizationFactor));
-    }
-
-    // UNIFORMITY CORRECTION: Incremental random walk calculation matching pressure class architecture
-    private void updateLongTermDrift(double deltaTimeSeconds, ThreadLocalRandom random) {
-        double deltaTimeHours = deltaTimeSeconds / 3600.0;
-        double stepStandardDeviation = Math.sqrt(deltaTimeHours * DRIFT_VARIANCE_PER_HOUR);
-        accumulatedLongTermDrift += random.nextGaussian() * stepStandardDeviation;
     }
 }

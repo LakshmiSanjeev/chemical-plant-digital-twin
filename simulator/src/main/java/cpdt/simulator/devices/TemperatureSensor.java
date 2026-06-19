@@ -17,48 +17,42 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class TemperatureSensor extends SensorDevice {
 
-    // physical operating limits of the sensor hardware
     private static final double DEFAULT_MIN_RANGE = -50.0;
     private static final double DEFAULT_MAX_RANGE = 250.0;
-    // IEC 60751 Class A RTD approximation
     private static final double IEC_CLASS_A_BASE_ERROR = 0.15;
     private static final double IEC_CLASS_A_TEMP_COEFFICIENT = 0.002;
-    // RTD self-heating effect
     private static final double DEFAULT_SELF_HEATING_OFFSET = 0.08;
 
-    // NATIVE PHYSICS PRESERVED: Variance calculated from the original baseline drift value
-    private static final double DRIFT_VARIANCE_PER_HOUR = 0.002 * 0.002;
-
-    // internal thermal state of sensing element
     private double sensorBodyTemperature;
-    // thermal inertia / thermowell lag constant
     private final double thermalTimeConstantSeconds;
-    // previous measurement timestamp
     private long lastReadingTimestamp;
-
-    // UNIFORMITY CORRECTION: Stateful continuous Random Walk tracking
-    private double accumulatedLongTermDrift = 0.0;
 
     public TemperatureSensor(String deviceId, String name, Location location, PlantEnvironment plantEnvironment) {
         super(deviceId, name, DeviceType.TEMPERATURE_SENSOR, location, MeasurementType.TEMPERATURE, plantEnvironment);
         Objects.requireNonNull(location, "Location cannot be null");
+
         this.minRange = DEFAULT_MIN_RANGE;
         this.maxRange = DEFAULT_MAX_RANGE;
 
-        // UNIFORMITY CORRECTION: Native 16-bit physical hardware LSB step size
-        this.resolution = (maxRange - minRange) / (Math.pow(2, ADC_RESOLUTION_BITS) - 1);
+        calculateHardwareResolution();
+
+        this.driftVariancePerHour = 0.002 * 0.002;
 
         this.lowAlarmLimit = 0.0;
         this.highAlarmLimit = 120.0;
+
         this.accuracy = 0.25;
+
         this.hysteresis = 1.5;
+
         this.samplingIntervalMs = 1000;
 
         double initialEnvironmentTemperature = plantEnvironment.getValue(location.area(), MeasurementType.TEMPERATURE);
         this.sensorBodyTemperature = initialEnvironmentTemperature;
+        setCurrentValue(initialEnvironmentTemperature);
+
         this.lastReadingTimestamp = System.currentTimeMillis();
         this.thermalTimeConstantSeconds = determineThermalTimeConstant(location.area());
-        setCurrentValue(initialEnvironmentTemperature);
     }
 
     @Override
@@ -71,32 +65,22 @@ public class TemperatureSensor extends SensorDevice {
         lastReadingTimestamp = currentTimestamp;
         double processTemperature = getEnvironmentValue();
 
-        // Exponential Moving Average (EMA) filter
         double alpha = 1.0 - Math.exp(-deltaTimeSeconds / thermalTimeConstantSeconds);
         sensorBodyTemperature += alpha * (processTemperature - sensorBodyTemperature);
 
-        // Native self-heating mathematics preserved
         double heatedTemperature = sensorBodyTemperature + calculateSelfHeating();
-
-        // Native IEC 60751 Class A tolerance band math preserved
         double toleranceBand = IEC_CLASS_A_BASE_ERROR + IEC_CLASS_A_TEMP_COEFFICIENT * Math.abs(heatedTemperature);
 
         ThreadLocalRandom random = ThreadLocalRandom.current();
 
-        // Native noise profiles preserved
         double thermalNoise = random.nextGaussian() * (toleranceBand * 0.20);
         double emiNoise = generateEmiNoise(random);
         double processNoise = generateProcessNoise(processTemperature, random);
-
-        // UNIFORMITY CORRECTION: Stateful drift step execution
         updateLongTermDrift(deltaTimeSeconds, random);
-
         double physicalTemperature = heatedTemperature + thermalNoise + emiNoise + processNoise + accumulatedLongTermDrift;
 
-        // UNIFORMITY CORRECTION: Single-layer physical ADC quantization tracking with hard limits
         double digitizedTemperature = applyAdcQuantization(physicalTemperature);
         digitizedTemperature = Math.clamp(digitizedTemperature, minRange, maxRange);
-
         setCurrentValue(digitizedTemperature);
         return digitizedTemperature;
     }
@@ -141,12 +125,5 @@ public class TemperatureSensor extends SensorDevice {
             default -> 0.03;
         };
         return random.nextGaussian() * turbulenceFactor * (processTemperature / 100.0);
-    }
-
-    // UNIFORMITY CORRECTION: Incremental random walk calculation matching pressure class architecture
-    private void updateLongTermDrift(double deltaTimeSeconds, ThreadLocalRandom random) {
-        double deltaTimeHours = deltaTimeSeconds / 3600.0;
-        double stepStandardDeviation = Math.sqrt(deltaTimeHours * DRIFT_VARIANCE_PER_HOUR);
-        accumulatedLongTermDrift += random.nextGaussian() * stepStandardDeviation;
     }
 }

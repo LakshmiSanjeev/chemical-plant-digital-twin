@@ -16,49 +16,44 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class PressureSensor extends SensorDevice {
 
-    // physical operating limits of the sensor hardware
     private static final double DEFAULT_MIN_RANGE = 0.0;
     private static final double DEFAULT_MAX_RANGE = 40.0;
-    // smart transmitter specification
     private static final double BASE_ACCURACY_PERCENT_FS = 0.075;
-
-    // Thermal shifts affect both zero (offset) and span (gain)
     private static final double CALIBRATION_REFERENCE_TEMP_C = 25.0;
-    private static final double THERMAL_ZERO_SHIFT_PER_10C = 0.0025; // bar shift per 10C deviation
-    private static final double THERMAL_SPAN_SHIFT_PER_10C = 0.0015; // percentage gain shift per 10C deviation
-
-    // Hardware baseline noise floor independent of accuracy calculation
+    private static final double THERMAL_ZERO_SHIFT_PER_10C = 0.0025;
+    private static final double THERMAL_SPAN_SHIFT_PER_10C = 0.0015;
     private static final double ELECTRONIC_NOISE_FLOOR_BAR = 0.0005;
 
-    // internal pressure state
     private double smoothedPressure;
-    // first-order damping constant
     private final double dampingTimeConstantSeconds;
-    // previous measurement timestamp
     private long lastReadingTimestamp;
-
-    // Track accumulated drift using a continuous Random Walk (Brownian Motion)
-    private double accumulatedLongTermDrift = 0.0;
-    private static final double DRIFT_VARIANCE_PER_HOUR = 0.0002;
 
     public PressureSensor(String deviceId, String name, Location location, PlantEnvironment plantEnvironment) {
         super(deviceId, name, DeviceType.PRESSURE_SENSOR, location, MeasurementType.PRESSURE, plantEnvironment);
         Objects.requireNonNull(location, "Location cannot be null");
+
         this.minRange = DEFAULT_MIN_RANGE;
         this.maxRange = DEFAULT_MAX_RANGE;
-        this.resolution = (maxRange - minRange) / (Math.pow(2, ADC_RESOLUTION_BITS) - 1);
+
+        calculateHardwareResolution();
+
+        this.driftVariancePerHour = 0.0002;
 
         this.lowAlarmLimit = 0.5;
         this.highAlarmLimit = 32.0;
-        this.hysteresis = 0.2;
-        this.samplingIntervalMs = 500;
+
         this.accuracy = (BASE_ACCURACY_PERCENT_FS / 100.0) * (maxRange - minRange);
+
+        this.hysteresis = 0.2;
+
+        this.samplingIntervalMs = 500;
 
         double initialEnvironmentPressure = plantEnvironment.getValue(location.area(), MeasurementType.PRESSURE);
         this.smoothedPressure = initialEnvironmentPressure;
+        setCurrentValue(initialEnvironmentPressure);
+
         this.lastReadingTimestamp = System.currentTimeMillis();
         this.dampingTimeConstantSeconds = determineDampingConstant(location.area());
-        setCurrentValue(initialEnvironmentPressure);
     }
 
     @Override
@@ -82,12 +77,10 @@ public class PressureSensor extends SensorDevice {
         double electronicNoise = generateElectronicNoise(random);
         double processNoise = generateProcessFluctuation(random);
         updateLongTermDrift(deltaTimeSeconds, random);
-
         double physicalPressure = smoothedPressure + thermalShift + electronicNoise + processNoise + accumulatedLongTermDrift;
 
         double digitizedPressure = applyAdcQuantization(physicalPressure);
         digitizedPressure = Math.clamp(digitizedPressure, minRange, maxRange);
-
         setCurrentValue(digitizedPressure);
         return digitizedPressure;
     }
@@ -125,11 +118,5 @@ public class PressureSensor extends SensorDevice {
             default -> 0.003;
         };
         return random.nextGaussian() * smoothedPressure * fluctuationFactor;
-    }
-
-    private void updateLongTermDrift(double deltaTimeSeconds, ThreadLocalRandom random) {
-        double deltaTimeHours = deltaTimeSeconds / 3600.0;
-        double stepStandardDeviation = Math.sqrt(deltaTimeHours * DRIFT_VARIANCE_PER_HOUR);
-        accumulatedLongTermDrift += random.nextGaussian() * stepStandardDeviation;
     }
 }
