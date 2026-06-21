@@ -17,13 +17,16 @@ public class SimulatorEngine {
     private final List<SensorDevice> sensors;
     private final PlantEnvironment plantEnvironment;
     private final TelemetryPublisher telemetryPublisher;
+    private final ScenarioEngine scenarioEngine;
 
     private ScheduledExecutorService scheduler;
 
-    public SimulatorEngine(List<SensorDevice> sensors, PlantEnvironment plantEnvironment, TelemetryPublisher telemetryPublisher) {
+    public SimulatorEngine(List<SensorDevice> sensors, PlantEnvironment plantEnvironment,
+                           TelemetryPublisher telemetryPublisher, ScenarioEngine scenarioEngine) {
         this.sensors = Objects.requireNonNull(sensors, "Sensors cannot be null");
         this.plantEnvironment = Objects.requireNonNull(plantEnvironment, "PlantEnvironment cannot be null");
         this.telemetryPublisher = Objects.requireNonNull(telemetryPublisher, "TelemetryPublisher cannot be null");
+        this.scenarioEngine = Objects.requireNonNull(scenarioEngine, "ScenarioEngine cannot be null");
     }
 
     public void start() {
@@ -53,6 +56,14 @@ public class SimulatorEngine {
     }
 
     private void simulationTick() {
+        try {
+            scenarioEngine.update(ENGINE_TICK_MS);
+        }
+        catch (Exception e) {
+            System.err.println("Error updating scenario engine during tick processing");
+            e.printStackTrace();
+        }
+
         long tickTimestamp = System.currentTimeMillis();
         for (SensorDevice sensor : sensors) {
             try {
