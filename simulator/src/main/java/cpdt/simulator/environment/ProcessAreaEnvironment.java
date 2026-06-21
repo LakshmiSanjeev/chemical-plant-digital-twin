@@ -24,8 +24,15 @@ public class ProcessAreaEnvironment {
     private LocalDateTime lastUpdated;
 
     private static final Set<MeasurementType> SUPPORTED_MEASUREMENTS =
-            EnumSet.of(MeasurementType.TEMPERATURE, MeasurementType.PRESSURE,
-                       MeasurementType.GAS_CONCENTRATION, MeasurementType.HUMIDITY);
+            EnumSet.of(
+                    MeasurementType.TEMPERATURE,
+                    MeasurementType.PRESSURE,
+                    MeasurementType.HUMIDITY,
+                    MeasurementType.GAS_CONCENTRATION,
+                    MeasurementType.FLOW_RATE,
+                    MeasurementType.PH,
+                    MeasurementType.LEVEL
+            );
 
     public ProcessAreaEnvironment(ProcessArea processArea) {
         Objects.requireNonNull(processArea, "ProcessArea cannot be null");

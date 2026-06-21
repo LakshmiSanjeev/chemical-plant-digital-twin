@@ -49,6 +49,9 @@ public abstract class SensorDevice extends Device {
     // environmental context
     @Getter
     private final PlantEnvironment plantEnvironment;
+    @Getter
+    @Setter
+    private long lastSampleTimestamp;
 
     protected double accumulatedLongTermDrift = 0.0;
 
@@ -59,6 +62,7 @@ public abstract class SensorDevice extends Device {
         super(deviceId, name, deviceType, location);
         this.measurementType = Objects.requireNonNull(measurementType, "MeasurementType cannot be null");
         this.plantEnvironment = Objects.requireNonNull(plantEnvironment, "PlantEnvironment cannot be null");
+        this.lastSampleTimestamp = System.currentTimeMillis();
     }
 
     public abstract double getReading();
