@@ -10,12 +10,6 @@ import cpdt.simulator.environment.PlantEnvironment;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
-/**
- * Industrial-grade Glass Electrode pH & Analytical Transmitter Simulation.
- * Fully unified architecture matching the Pressure, Temperature, Level, Flow, and Gas designs,
- * while preserving native Nernstian temperature-dependent electrochemistry, glass impedance
- * thermal loading, and reference junction fouling/poisoning saturation profiles.
- */
 public class PhSensor extends SensorDevice {
 
     private static final double DEFAULT_MIN_RANGE = 0.0;
@@ -42,14 +36,14 @@ public class PhSensor extends SensorDevice {
 
         this.driftVariancePerHour = 0.001 * 0.001;
 
-        this.lowAlarmLimit = 3.5;    // Acidic breakthrough threshold
-        this.highAlarmLimit = 10.5;  // Alkaline scaling / caustic warning boundary
+        this.lowAlarmLimit = 3.5;
+        this.highAlarmLimit = 10.5;
 
         this.accuracy = BASE_ACCURACY_PH;
 
         this.hysteresis = 0.15;
 
-        this.samplingIntervalMs = 500; // Fast sampling required for tight chemical dosage / titration loops
+        this.samplingIntervalMs = 500;
 
         double initialEnvironmentPh = plantEnvironment.getValue(location.area(), MeasurementType.PH);
         this.smoothedPhValue = initialEnvironmentPh;
@@ -92,63 +86,49 @@ public class PhSensor extends SensorDevice {
 
     private double determineChemicalTimeConstant(ProcessArea area) {
         return switch (area) {
-            case PIPELINE_SECTION -> 2.0;      // High velocity dynamic inline blending
-            case FEED_SECTION -> 4.0;          // Forced influent treatment streams
-            case REACTOR_SECTION -> 8.0;       // Buffer delays near tank walls away from impeller
-            case DISTILLATION_SECTION -> 12.0; // High viscosity fraction accumulation traps
-            case COOLING_SECTION -> 15.0;      // Bio-film build-up dampening in open basin channels
-            case UTILITIES_SECTION -> 10.0;     // Boiler feedwater demineralization return loops
-            case STORAGE_SECTION -> 45.0;      // Large volume stagnant inventory equalization
+            case PIPELINE_SECTION -> 2.0;
+            case FEED_SECTION -> 4.0;
+            case REACTOR_SECTION -> 8.0;
+            case DISTILLATION_SECTION -> 12.0;
+            case COOLING_SECTION -> 15.0;
+            case UTILITIES_SECTION -> 10.0;
+            case STORAGE_SECTION -> 45.0;
         };
     }
 
-    /**
-     * NATIVE PHYSICS: Electrochemistry follows the Nernst Equation ($E = E_0 - \frac{RT}{nF}\ln Q$).
-     * Sensor voltage output slope varies proportionally with absolute thermal loading in Kelvin.
-     * Measurement error scales with absolute distance from the chemical neutral point (7.0 pH Isopotential).
-     */
     private double applyNernstTemperatureCompensation(double nominalPh, double currentTemperature) {
         double currentKelvin = currentTemperature + ABSOLUTE_ZERO_KELVIN;
         double referenceKelvin = CALIBRATION_REFERENCE_TEMP_C + ABSOLUTE_ZERO_KELVIN;
 
-        // Quantify the thermal scaling coefficient change on EMF generation
         double slopeThermalFactor = currentKelvin / referenceKelvin;
 
-        // Deviation expands further away from the 7.0 pH zero-voltage balance point
         double deviationFromIsopotential = nominalPh - 7.0;
         double uncompensatedShift = deviationFromIsopotential * (slopeThermalFactor - 1.0) * THERMAL_SLOPE_SHIFT_COEFFICIENT;
 
         return nominalPh + uncompensatedShift;
     }
 
-    /**
-     * NATIVE PHYSICS: Continuous runtime under harsh process conditions degrades glass active sites.
-     * High alkaline or acidic environments trigger chemical poisoning, leading to response compression.
-     */
     private double applyElectrodeFoulingAndPoisoning(double level) {
         if (level > SENSITIVITY_DEGRADATION_THRESHOLD_PH) {
             double excess = level - SENSITIVITY_DEGRADATION_THRESHOLD_PH;
-            // Analytical compression due to lithium-ion errors in high alkaline processing
             return SENSITIVITY_DEGRADATION_THRESHOLD_PH + (excess * (1.0 - FOULING_COMPRESSION_FACTOR));
         }
         return level;
     }
 
     private double generatePreampNoise(ThreadLocalRandom random) {
-        // High glass membrane internal resistance ($100\text{ M}\Omega+$) triggers thermal Johnson noise amplification
         return random.nextGaussian() * (accuracy * 0.20);
     }
 
     private double generateStreamingCurrentNoise(double processTemperature, ThreadLocalRandom random) {
         ProcessArea area = getLocation().area();
-        // Dynamic liquid velocities passing over the glass outer layer generate transient electrostatic flow charges
         double fluidTurbulenceFactor = switch (area) {
-            case PIPELINE_SECTION -> 0.025;      // High flow friction noise profiles
-            case REACTOR_SECTION -> 0.015;       // Intermittent agitator shear wave pulses
-            case COOLING_SECTION -> 0.010;       // Large volume aeration pump turbulence
-            default -> 0.003;                    // Calm process channels or static drainage
+            case PIPELINE_SECTION -> 0.025;
+            case REACTOR_SECTION -> 0.015;
+            case COOLING_SECTION -> 0.010;
+            default -> 0.003;
         };
-        // Ion mobility and dynamic streaming noise scale linearly with thermal kinetic state
+
         double thermalActivityRatio = (processTemperature + ABSOLUTE_ZERO_KELVIN) / (CALIBRATION_REFERENCE_TEMP_C + ABSOLUTE_ZERO_KELVIN);
         return random.nextGaussian() * fluidTurbulenceFactor * thermalActivityRatio;
     }

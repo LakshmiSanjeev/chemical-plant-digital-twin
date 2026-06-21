@@ -10,32 +10,21 @@ import cpdt.simulator.environment.PlantEnvironment;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
-/**
- * Industrial-grade Guided Wave Radar (GWR) Level Transmitter Simulation.
- * Fully unified architecture matching the Pressure, Temperature, and Flow designs,
- * while preserving native fluid surface physics, vapor space dielectric effects, and sloshing.
- */
 public class LevelSensor extends SensorDevice {
 
     private static final double DEFAULT_MIN_RANGE = 0.0;
     private static final double DEFAULT_MAX_RANGE = 12.0;
 
-    // Smart radar transmitter accuracy base specification (Percentage of Full Scale)
     private static final double BASE_ACCURACY_PERCENT_FS = 0.05;
 
-    // Vapor space dielectric properties affecting time-of-flight speed of light deviations
-    private static final double CALIBRATION_REFERENCE_DIELECTRIC = 1.0; // Vacuum/Dry Air
-    private static final double VAPOR_DIELECTRIC_TEMP_COEFFICIENT = 0.0003; // Increase per degree C deviation
-    // Upper/Lower block distances (dead zones) near top flange and bottom anchor
+    private static final double CALIBRATION_REFERENCE_DIELECTRIC = 1.0;
+    private static final double VAPOR_DIELECTRIC_TEMP_COEFFICIENT = 0.0003;
+
     private static final double RADAR_DEAD_ZONE_METERS = 0.15;
 
-    // internal hydrodynamic surface level state
     private double smoothedLevel;
-    // tank geometry / surface area damping time constant
     private final double levelTimeConstantSeconds;
-    // previous measurement timestamp
     private long lastReadingTimestamp;
-
 
     public LevelSensor(String deviceId, String name, Location location, PlantEnvironment plantEnvironment) {
         super(deviceId, name, DeviceType.LEVEL_SENSOR, location, MeasurementType.LEVEL, plantEnvironment);
@@ -55,7 +44,7 @@ public class LevelSensor extends SensorDevice {
 
         this.hysteresis = 0.1;
 
-        this.samplingIntervalMs = 1000; // Level loops typically run slower due to massive tank capacities
+        this.samplingIntervalMs = 1000;
 
         double initialEnvironmentLevel = plantEnvironment.getValue(location.area(), MeasurementType.LEVEL);
         this.smoothedLevel = initialEnvironmentLevel;
@@ -83,13 +72,14 @@ public class LevelSensor extends SensorDevice {
         ThreadLocalRandom random = ThreadLocalRandom.current();
 
         double measuredLevel = applyVaporDielectricCorrection(smoothedLevel, processTemperature);
+
         measuredLevel = applyPhysicalDeadZones(measuredLevel);
 
         double radarElectronicNoise = generateElectronicNoise(random);
         double surfaceSloshNoise = generateSurfaceSloshNoise(measuredLevel, random);
         updateLongTermDrift(deltaTimeSeconds, random);
-        double physicalLevel = measuredLevel + radarElectronicNoise + surfaceSloshNoise + accumulatedLongTermDrift;
 
+        double physicalLevel = measuredLevel + radarElectronicNoise + surfaceSloshNoise + accumulatedLongTermDrift;
         double digitizedLevel = applyAdcQuantization(physicalLevel);
         digitizedLevel = Math.clamp(digitizedLevel, minRange, maxRange);
         setCurrentValue(digitizedLevel);
@@ -98,60 +88,49 @@ public class LevelSensor extends SensorDevice {
 
     private double determineLevelTimeConstant(ProcessArea area) {
         return switch (area) {
-            case STORAGE_SECTION -> 60.0;     // Huge inventory, slow shifts
-            case DISTILLATION_SECTION -> 15.0; // Column reboiler/sump dynamics
-            case REACTOR_SECTION -> 10.0;     // Aggressive agitation response
-            case FEED_SECTION -> 8.0;         // Quick surge tank stabilization
-            case UTILITIES_SECTION -> 20.0;    // Boiler drum / raw water reserves
-            case COOLING_SECTION -> 25.0;      // Cooling tower basin thermal inertia
-            case PIPELINE_SECTION -> 2.0;      // Knock-out pot (extremely fast)
+            case STORAGE_SECTION -> 60.0;
+            case DISTILLATION_SECTION -> 15.0;
+            case REACTOR_SECTION -> 10.0;
+            case FEED_SECTION -> 8.0;
+            case UTILITIES_SECTION -> 20.0;
+            case COOLING_SECTION -> 25.0;
+            case PIPELINE_SECTION -> 2.0;
         };
     }
 
-    /**
-     * NATIVE PHYSICS: Radar time-of-flight scales inversely with the square root of vapor space dielectric constant.
-     * High process temperatures increase vapor density, shifting dielectric property from dry air calibrations.
-     */
     private double applyVaporDielectricCorrection(double nominalLevel, double currentTemperature) {
         double temperatureDeviation = Math.max(0.0, currentTemperature - 25.0);
         double vaporDielectric = CALIBRATION_REFERENCE_DIELECTRIC + (temperatureDeviation * VAPOR_DIELECTRIC_TEMP_COEFFICIENT);
 
-        // Radar signals slow down in higher dielectrics, creating a false perception of a lower liquid level
-        return nominalLevel / Math.sqrt(vaporDielectric);
+        double totalUllageSpace = maxRange - nominalLevel;
+        double apparentUllageSpace = totalUllageSpace * Math.sqrt(vaporDielectric);
+        return maxRange - apparentUllageSpace;
     }
 
-    /**
-     * NATIVE PHYSICS: Radar and Ultrasonic units cannot detect items inside their physical near-field blanking distance
-     * (blocking distance at top) or beneath the lower reference limit (dead space at bottom).
-     */
     private double applyPhysicalDeadZones(double level) {
         if (level > (maxRange - RADAR_DEAD_ZONE_METERS)) {
-            return maxRange - RADAR_DEAD_ZONE_METERS; // Saturation at top flange
+            return maxRange - RADAR_DEAD_ZONE_METERS;
         }
         if (level < (minRange + RADAR_DEAD_ZONE_METERS)) {
-            return minRange; // Complete loss of pulse signal echo at absolute bottom tank floor
+            return minRange;
         }
         return level;
     }
 
     private double generateElectronicNoise(ThreadLocalRandom random) {
-        // High-frequency sensor reference clock jitter
         return random.nextGaussian() * (accuracy * 0.20);
     }
 
     private double generateSurfaceSloshNoise(double currentLevel, ThreadLocalRandom random) {
         ProcessArea area = getLocation().area();
-        // Agitation, boiling, and inflow cause mechanical surface waves ("sloshing")
         double sloshIntensity = switch (area) {
-            case REACTOR_SECTION -> 0.080;      // Intense mechanical stirrers
-            case DISTILLATION_SECTION -> 0.045; // Boiling / weeping trays
-            case PIPELINE_SECTION -> 0.030;     // High velocity continuous inflow turbulence
-            case FEED_SECTION -> 0.020;         // Standard buffer tank inflows
-            default -> 0.005;                   // Stagnant storage / baseline surface ripple
+            case REACTOR_SECTION -> 0.080;
+            case DISTILLATION_SECTION -> 0.045;
+            case PIPELINE_SECTION -> 0.030;
+            case FEED_SECTION -> 0.020;
+            default -> 0.005;
         };
-
-        // Slosh effect amplifies moderately as liquid approaches mid-tank due to less wall boundary dampening
         double normalizationFactor = Math.sin(Math.PI * (currentLevel / maxRange));
-        return random.nextGaussian() * sloshIntensity * (0.5 + Math.abs(normalizationFactor));
+        return random.nextGaussian() * sloshIntensity * Math.abs(normalizationFactor);
     }
 }

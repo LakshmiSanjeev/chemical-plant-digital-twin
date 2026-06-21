@@ -10,11 +10,6 @@ import cpdt.simulator.environment.PlantEnvironment;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
-/**
- * Industrial-grade Differential Pressure (DP) Orifice Flow Sensor Simulation.
- * Fully unified architecture matching the Pressure and Temperature designs,
- * while preserving native fluid dynamics and square-root flow relationships.
- */
 public class FlowSensor extends SensorDevice {
 
     private static final double DEFAULT_MIN_RANGE = 0.0;
@@ -99,25 +94,15 @@ public class FlowSensor extends SensorDevice {
         };
     }
 
-    /**
-     * NATIVE PHYSICS: Volumetric flow through an orifice varies inversely with the square root of fluid density.
-     * Changes in process temperature deviate the density from calibration values.
-     */
     private double applyFluidDensityCorrection(double nominalFlow, double currentTemperature) {
         double temperatureDeviation = currentTemperature - THERMAL_REFERENCE_TEMP_C;
         double densityRatio = 1.0 + (temperatureDeviation * FLUID_DENSITY_TEMP_COEFFICIENT);
 
-        // Ensure a physical lower bound to prevent imaginary numbers in square root calculations
         densityRatio = Math.max(densityRatio, 0.5);
 
-        // Flow rate behaves inversely proportional to sqrt of density ratio change
         return nominalFlow / Math.sqrt(densityRatio);
     }
 
-    /**
-     * NATIVE PHYSICS: At low flows near zero, differential pressure approaches zero rapidly ($DP \propto Q^2$).
-     * Standard square-root extraction transmitters utilize a low-flow cutoff to eliminate noisy erratic readings.
-     */
     private double applyLowFlowCutoff(double flow) {
         double cutoffThreshold = maxRange * LOW_FLOW_CUTOFF_PERCENT;
         if (flow < cutoffThreshold) {
@@ -127,13 +112,11 @@ public class FlowSensor extends SensorDevice {
     }
 
     private double generateElectronicNoise(ThreadLocalRandom random) {
-        // High-frequency DP cell noise amplifier floor
         return random.nextGaussian() * (accuracy * 0.15);
     }
 
     private double generateTurbulentFluctuation(double currentFlow, ThreadLocalRandom random) {
         ProcessArea area = getLocation().area();
-        // Reynolds number/Turbulence varies significantly per chemical plant processing section
         double turbulenceIntensity = switch (area) {
             case PIPELINE_SECTION -> 0.035;
             case REACTOR_SECTION -> 0.025;
@@ -141,7 +124,6 @@ public class FlowSensor extends SensorDevice {
             case FEED_SECTION -> 0.015;
             default -> 0.010;
         };
-        // Turbulent noise intensity scales dynamically with the velocity profile (flow rate)
         return random.nextGaussian() * currentFlow * turbulenceIntensity;
     }
 }

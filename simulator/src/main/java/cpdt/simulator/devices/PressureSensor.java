@@ -10,10 +10,6 @@ import cpdt.simulator.environment.PlantEnvironment;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
-/**
- * Smart Piezoresistive Silicon Pressure Transmitter Simulation
- * Fully updated for realistic physical and instrumentation modeling.
- */
 public class PressureSensor extends SensorDevice {
 
     private static final double DEFAULT_MIN_RANGE = 0.0;

@@ -10,11 +10,6 @@ import cpdt.simulator.environment.PlantEnvironment;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
-/**
- * Industrial-grade RTD Temperature Sensor Simulation
- * Fully unified architecture matching the updated PressureSensor design,
- * while preserving native RTD physics and IEC 60751 Class A specifications.
- */
 public class TemperatureSensor extends SensorDevice {
 
     private static final double DEFAULT_MIN_RANGE = -50.0;
@@ -39,9 +34,14 @@ public class TemperatureSensor extends SensorDevice {
         this.driftVariancePerHour = 0.002 * 0.002;
 
         this.lowAlarmLimit = 0.0;
-        this.highAlarmLimit = 120.0;
+        this.highAlarmLimit = switch (location.area()) {
+            case REACTOR_SECTION, DISTILLATION_SECTION -> 210.0;
+            case PIPELINE_SECTION, FEED_SECTION -> 130.0;
+            case UTILITIES_SECTION, STORAGE_SECTION -> 85.0;
+            case COOLING_SECTION -> 45.0;
+        };
 
-        this.accuracy = 0.25;
+        this.accuracy = IEC_CLASS_A_BASE_ERROR;
 
         this.hysteresis = 1.5;
 
