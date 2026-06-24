@@ -6,17 +6,19 @@ import lombok.Getter;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ScenarioEngine {
 
     @Getter
     private final PlantEnvironment plantEnvironment;
-    private final List<Scenario> trackedScenarios;
+
+    private final Set<Scenario> trackedScenarios;
 
     public ScenarioEngine(PlantEnvironment plantEnvironment) {
         this.plantEnvironment = Objects.requireNonNull(plantEnvironment, "PlantEnvironment cannot be null");
-        this.trackedScenarios = new CopyOnWriteArrayList<>();
+        this.trackedScenarios = ConcurrentHashMap.newKeySet();
     }
 
     public void triggerScenario(Scenario scenario) {
@@ -26,10 +28,7 @@ public class ScenarioEngine {
         }
         scenario.activate();
         scenario.setActive(true);
-
-        if (!trackedScenarios.contains(scenario)) {
-            trackedScenarios.add(scenario);
-        }
+        trackedScenarios.add(scenario);
         System.out.println("Scenario activated: " + scenario.getName());
     }
 
@@ -45,10 +44,15 @@ public class ScenarioEngine {
 
     public void update(long deltaTimeMs) {
         for (Scenario scenario : trackedScenarios) {
-            scenario.update(deltaTimeMs);
-            if (scenario.isFullyResolved()) {
-                trackedScenarios.remove(scenario);
-                System.out.println("Scenario fully resolved and purged from engine: " + scenario.getName());
+            try {
+                scenario.update(deltaTimeMs);
+                if (scenario.isFullyResolved()) {
+                    trackedScenarios.remove(scenario);
+                    System.out.println("Scenario fully resolved and purged from engine: " + scenario.getName());
+                }
+            } catch (Exception e) {
+                System.err.println("Error executing update for scenario: " + scenario.getScenarioId());
+                e.printStackTrace();
             }
         }
     }

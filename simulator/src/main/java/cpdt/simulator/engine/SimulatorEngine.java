@@ -1,6 +1,7 @@
 package cpdt.simulator.engine;
 
 import cpdt.common.dto.TelemetryPacket;
+import cpdt.common.enums.DeviceStatus;
 import cpdt.simulator.SensorDevice;
 import cpdt.simulator.environment.PlantEnvironment;
 
@@ -71,7 +72,13 @@ public class SimulatorEngine {
                 if (elapsed < sensor.getSamplingIntervalMs()) {
                     continue;
                 }
+
                 double reading = sensor.getReading();
+
+                if (sensor.getStatus() == DeviceStatus.CRITICAL) {
+                    reading = 0.0;
+                }
+
                 sensor.setCurrentValue(reading);
                 sensor.setLastUpdated(tickTimestamp);
                 sensor.setLastSampleTimestamp(tickTimestamp);
@@ -85,22 +92,21 @@ public class SimulatorEngine {
         }
     }
 
+
     private void publishTelemetry(SensorDevice sensor, double reading, long timestamp) {
         try {
             var location = sensor.getLocation();
-            TelemetryPacket packet =
-                    new TelemetryPacket(
-                            sensor.getDeviceId(),
-                            sensor.getName(),
-                            sensor.getType(),
-                            sensor.getStatus(),
-                            location.locationId(),
-                            location.name(),
-                            location.area(),
-                            timestamp,
-                            sensor.getMeasurementType(),
-                            reading
-                    );
+            TelemetryPacket packet = new TelemetryPacket(
+                                sensor.getDeviceId(),
+                                sensor.getName(),
+                                sensor.getType(),
+                                sensor.getStatus(),
+                                location.locationId(),
+                                location.name(),
+                                location.area(),
+                                timestamp,
+                                sensor.getMeasurementType(),
+                                reading);
             telemetryPublisher.publish(packet);
         }
         catch (Exception e) {
