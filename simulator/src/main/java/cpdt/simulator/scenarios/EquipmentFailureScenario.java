@@ -1,76 +1,61 @@
 package cpdt.simulator.scenarios;
 
 import cpdt.common.enums.DeviceStatus;
-import cpdt.common.enums.MeasurementType;
-import cpdt.common.models.Device;
+import cpdt.simulator.SensorDevice;
 import cpdt.simulator.environment.PlantEnvironment;
 
 import java.util.Objects;
 
 public class EquipmentFailureScenario extends Scenario {
 
-    private final Device targetDevice;
+    private final SensorDevice targetSensor;
     private DeviceStatus originalStatus;
-    private double originalSensorValue;
-    private MeasurementType primaryMeasurementType;
 
-    public EquipmentFailureScenario(String scenarioId, Device targetDevice, PlantEnvironment plantEnvironment) {
-        super(scenarioId, "Equipment Failure Scenario", targetDevice.getLocation().area(), plantEnvironment);
-        this.targetDevice = Objects.requireNonNull(targetDevice, "Target device cannot be null");
-        this.primaryMeasurementType = matchMeasurementTypeByDevice(targetDevice);
+    private boolean isActivated = false;
+
+    public EquipmentFailureScenario(String scenarioId, SensorDevice targetSensor, PlantEnvironment plantEnvironment) {
+        super(scenarioId, "Equipment Failure Scenario", targetSensor.getLocation().area(), plantEnvironment);
+        this.targetSensor = Objects.requireNonNull(targetSensor, "Target sensor cannot be null");
     }
 
     @Override
     public void activate() {
-        originalStatus = targetDevice.getStatus();
-        targetDevice.setStatus(DeviceStatus.CRITICAL);
-        targetDevice.setLastUpdated(System.currentTimeMillis());
-        if (primaryMeasurementType != null) {
-            originalSensorValue = plantEnvironment.getValue(getAffectedArea(), primaryMeasurementType);
-            plantEnvironment.setValue(getAffectedArea(), primaryMeasurementType, 0.0);
+        if (isActivated) {
+            return;
         }
-        System.out.printf("Equipment failure triggered: %s (%s) - Sensor reading zeroed out.%n", targetDevice.getName(), targetDevice.getDeviceId());
+
+        this.originalStatus = targetSensor.getStatus();
+
+        targetSensor.setStatus(DeviceStatus.CRITICAL);
+        targetSensor.setLastUpdated(System.currentTimeMillis());
+
+        targetSensor.setCurrentValue(0.0);
+
+        this.isActivated = true;
+        System.out.printf("Equipment failure triggered: %s (%s) - Target sensor reading zeroed out locally.%n",
+                targetSensor.getName(), targetSensor.getDeviceId());
     }
 
     @Override
     public void deactivate() {
-        targetDevice.setStatus(originalStatus);
-        targetDevice.setLastUpdated(System.currentTimeMillis());
-        if (primaryMeasurementType != null) {
-            plantEnvironment.setValue(getAffectedArea(), primaryMeasurementType, originalSensorValue);
+        if (!isActivated) {
+            return;
         }
-        System.out.printf("Equipment restored: %s (%s) - Sensor metrics restored.%n", targetDevice.getName(), targetDevice.getDeviceId());
+
+        targetSensor.setStatus(originalStatus);
+        targetSensor.setLastUpdated(System.currentTimeMillis());
+
+        double currentEnvReading = plantEnvironment.getValue(getAffectedArea(), targetSensor.getMeasurementType());
+        targetSensor.setCurrentValue(currentEnvReading);
+
+        this.isActivated = false;
+        System.out.printf("Equipment restored: %s (%s) - Target sensor metrics restored.%n",
+                targetSensor.getName(), targetSensor.getDeviceId());
     }
 
     @Override
     public void update(long deltaTimeMs) {
-        // Static scenario.
-        // Reading remains zeroed out until cleared.
+        // Handled automatically by SimulatorEngine
     }
 
-    private MeasurementType matchMeasurementTypeByDevice(Device device) {
-        if (device.getType() == null) {
-            return null;
-        }
-        String typeName = device.getType().name().toUpperCase();
-        if (typeName.contains("TEMPERATURE")) {
-            return MeasurementType.TEMPERATURE;
-        }
-        else if (typeName.contains("PRESSURE")) {
-            return MeasurementType.PRESSURE;
-        }
-        else if (typeName.contains("GAS")) {
-            return MeasurementType.GAS_CONCENTRATION;
-        }
-        else if (typeName.contains("FLOW")) {
-            return MeasurementType.FLOW_RATE;
-        }
-        else if (typeName.contains("LEVEL")) {
-            return MeasurementType.LEVEL;
-        }
-        else if (typeName.contains("PH")) {
-            return MeasurementType.PH;
-        }
-        return null;
-    }
 }

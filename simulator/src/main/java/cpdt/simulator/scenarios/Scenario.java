@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class Scenario {
 
@@ -17,15 +18,13 @@ public abstract class Scenario {
     private final ProcessArea affectedArea;
     protected final PlantEnvironment plantEnvironment;
 
-    @Setter
-    private boolean active;
+    private final AtomicBoolean active = new AtomicBoolean(false);
 
     protected Scenario(String scenarioId, String name, ProcessArea affectedArea, PlantEnvironment plantEnvironment) {
         this.scenarioId = Objects.requireNonNull(scenarioId, "Scenario ID cannot be null");
         this.name = Objects.requireNonNull(name, "Scenario name cannot be null");
         this.affectedArea = Objects.requireNonNull(affectedArea, "Affected area cannot be null");
         this.plantEnvironment = Objects.requireNonNull(plantEnvironment, "PlantEnvironment cannot be null");
-        this.active = false;
     }
 
     public abstract void activate();
@@ -34,8 +33,12 @@ public abstract class Scenario {
 
     public abstract void update(long deltaTimeMs);
 
+    public void setActive(boolean active) {
+        this.active.set(active);
+    }
+
     public boolean isActive() {
-        return active;
+        return this.active.get();
     }
 
     public boolean isFullyResolved() {

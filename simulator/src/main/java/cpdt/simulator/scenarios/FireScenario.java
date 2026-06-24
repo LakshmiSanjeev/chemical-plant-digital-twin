@@ -34,4 +34,9 @@ public class FireScenario extends Scenario {
         overheatScenario.update(deltaTimeMs);
         gasLeakScenario.update(deltaTimeMs);
     }
+
+    @Override
+    public boolean isFullyResolved() {
+        return !isActive() && overheatScenario.isFullyResolved() && gasLeakScenario.isFullyResolved();
+    }
 }
