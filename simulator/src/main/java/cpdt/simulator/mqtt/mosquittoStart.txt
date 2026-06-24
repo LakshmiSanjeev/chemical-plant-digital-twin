@@ -1,0 +1,7 @@
+net start mosquitto
+
+netstat -ano | findstr 1883
+
+sc query mosquitto
+
+net stop mosquitto
