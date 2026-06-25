@@ -1,0 +1,41 @@
+package cpdt.backend.entities;
+
+import cpdt.common.enums.AlertSeverity;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.Instant;
+
+@Entity
+@Table(
+    name = "alerts",
+    indexes = {@Index(name = "idx_alerts_device_timestamp", columnList = "deviceId,timestamp")}
+)
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class AlertEntity {
+
+    @Id
+    @Column(nullable = false, updatable = false)
+    private String alertId;
+
+    @Column(nullable = false)
+    private String deviceId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private AlertSeverity severity;
+
+    @Column(nullable = false, length = 500)
+    private String message;
+
+    @Column(nullable = false)
+    private Instant timestamp;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean acknowledged = false;
+}
