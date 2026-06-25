@@ -112,5 +112,6 @@ reports/
 ############################
 *.swp
 *.swo
+*-local.properties
 
 structure.txt
