@@ -1,0 +1,118 @@
+chemical-plant-digital-twin/
+├── backend/
+│   ├── src/
+│   │   ├── main/
+│   │   │   ├── java/
+│   │   │   │   ├── cpdt/
+│   │   │   │       ├── backend/
+│   │   │   │           ├── config/
+│   │   │   │           │   ├── AlarmThreshold.java
+│   │   │   │           │   └── MqttIngestionConfig.java
+│   │   │   │           ├── controllers/
+│   │   │   │           │   ├── AlertController.java
+│   │   │   │           │   ├── DeviceController.java
+│   │   │   │           │   └── TwinController.java
+│   │   │   │           ├── entities/
+│   │   │   │           │   ├── AlarmThresholdEntity.java
+│   │   │   │           │   ├── AlertEntity.java
+│   │   │   │           │   ├── DeviceEntity.java
+│   │   │   │           │   └── TelemetryEntity.java
+│   │   │   │           ├── mqtt/
+│   │   │   │           │   └── TelemetryMessageHandler.java
+│   │   │   │           ├── repositories/
+│   │   │   │           │   ├── AlarmThresholdRepository.java
+│   │   │   │           │   ├── AlertRepository.java
+│   │   │   │           │   ├── DeviceRepository.java
+│   │   │   │           │   └── TelemetryRepository.java
+│   │   │   │           ├── services/
+│   │   │   │           │   ├── AlarmStateService.java
+│   │   │   │           │   ├── AlertEvaluationService.java
+│   │   │   │           │   ├── AlertFetch.java
+│   │   │   │           │   ├── AlertPersistenceService.java
+│   │   │   │           │   ├── DevicePersistenceService.java
+│   │   │   │           │   ├── TelemetryIngestionService.java
+│   │   │   │           │   └── TelemetryPersistenceService.java
+│   │   │   │           ├── twin/
+│   │   │   │           │   ├── TwinDeviceState.java
+│   │   │   │           │   └── TwinStateStore.java
+│   │   │   │           ├── BackendApplication.java
+│   │   │   │           └── InvalidTelemetryException.java
+│   │   │   ├── resources/
+│   │   │       ├── alarm-thresholds.sql
+│   │   │       └── application.properties
+│   │   ├── test/
+│   │       ├── java/
+│   │           ├── cpdt/
+│   │               ├── backend/
+│   │                   └── BackendApplicationTests.java
+│   ├── mvnw
+│   ├── mvnw.cmd
+│   └── pom.xml
+├── common/
+│   ├── src/
+│   │   ├── main/
+│   │   │   ├── java/
+│   │   │   │   ├── cpdt/
+│   │   │   │       ├── common/
+│   │   │   │           ├── dto/
+│   │   │   │           │   ├── AlertMessage.java
+│   │   │   │           │   └── TelemetryPacket.java
+│   │   │   │           ├── enums/
+│   │   │   │           │   ├── AlarmState.java
+│   │   │   │           │   ├── AlertSeverity.java
+│   │   │   │           │   ├── DeviceStatus.java
+│   │   │   │           │   ├── DeviceType.java
+│   │   │   │           │   ├── MeasurementType.java
+│   │   │   │           │   └── ProcessArea.java
+│   │   │   │           ├── events/
+│   │   │   │           │   └── SystemEvent.java
+│   │   │   │           ├── models/
+│   │   │   │           │   ├── Device.java
+│   │   │   │           │   └── Location.java
+│   │   │   │           ├── utils/
+│   │   │   │               ├── DeviceIdGenerator.java
+│   │   │   │               ├── TelemetrySerializer.java
+│   │   │   │               └── TopicBuilder.java
+│   │   │   ├── resources/
+│   │   ├── test/
+│   │       ├── java/
+│   └── pom.xml
+├── simulator/
+│   ├── src/
+│   │   ├── main/
+│   │   │   ├── java/
+│   │   │   │   ├── cpdt/
+│   │   │   │       ├── simulator/
+│   │   │   │           ├── bootstrap/
+│   │   │   │           │   └── Test.java
+│   │   │   │           ├── devices/
+│   │   │   │           │   ├── FlowSensor.java
+│   │   │   │           │   ├── GasSensor.java
+│   │   │   │           │   ├── LevelSensor.java
+│   │   │   │           │   ├── PhSensor.java
+│   │   │   │           │   ├── PressureSensor.java
+│   │   │   │           │   └── TemperatureSensor.java
+│   │   │   │           ├── engine/
+│   │   │   │           │   ├── ConsoleTelemetryPublisher.java
+│   │   │   │           │   ├── ScenarioEngine.java
+│   │   │   │           │   ├── SimulatorEngine.java
+│   │   │   │           │   └── TelemetryPublisher.java
+│   │   │   │           ├── environment/
+│   │   │   │           │   ├── PlantEnvironment.java
+│   │   │   │           │   └── ProcessAreaEnvironment.java
+│   │   │   │           ├── mqtt/
+│   │   │   │           │   ├── MqttTelemetryPublisher.java
+│   │   │   │           │   └── mosquittoStart.txt
+│   │   │   │           ├── scenarios/
+│   │   │   │           │   ├── EquipmentFailureScenario.java
+│   │   │   │           │   ├── FireScenario.java
+│   │   │   │           │   ├── GasLeakScenario.java
+│   │   │   │           │   ├── OverheatScenario.java
+│   │   │   │           │   ├── OverpressureScenario.java
+│   │   │   │           │   └── Scenario.java
+│   │   │   │           └── SensorDevice.java
+│   │   │   ├── resources/
+│   │   ├── test/
+│   │       ├── java/
+│   └── pom.xml
+└── pom.xml
