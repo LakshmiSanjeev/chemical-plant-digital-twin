@@ -138,7 +138,7 @@ public class Test {
         EquipmentFailureScenario equipmentFailure =
                 new EquipmentFailureScenario(
                         "SCN-FAIL-01",
-                        sensors.get(0),
+                        sensors.getFirst(),
                         plantEnvironment
                 );
 

@@ -2,6 +2,28 @@ net start mosquitto
 
 netstat -ano | findstr 1883
 
+tasklist /FI "PID eq <ID>"
+
 sc query mosquitto
 
 net stop mosquitto
+
+TelemetryMessageHandler
+          │
+          ▼
+TelemetryIngestionService
+          │
+          ├──────────────┐
+          ▼              ▼
+DevicePersistence   TelemetryPersistence
+        │                    │
+        ▼                    ▼
+DeviceRepository    TelemetryRepository
+
+| Previous State | New Severity                | Result        |
+| -------------- | --------------------------- | ------------- |
+| No alarm       | WARNING_HIGH                | `NEW_ALARM`   |
+| WARNING_HIGH   | WARNING_HIGH                | `NO_CHANGE`   |
+| WARNING_HIGH   | CRITICAL_HIGH               | `ESCALATED`   |
+| CRITICAL_HIGH  | WARNING_HIGH                | `DEESCALATED` |
+| Any alarm      | Normal (via `clearAlarm()`) | `CLEARED`     |
