@@ -15,9 +15,6 @@ public class AlertPersistenceService {
     private final AlertRepository alertRepository;
 
     public void save(AlertMessage alertMessage) {
-
-        System.out.println("Saving alert to database");
-
         AlertEntity entity = AlertEntity.builder()
                 .alertId(alertMessage.alertId())
                 .deviceId(alertMessage.deviceId())

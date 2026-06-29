@@ -1,4 +1,4 @@
-package cpdt.backend;
+package cpdt.backend.exception;
 
 public class InvalidTelemetryException extends RuntimeException {
 

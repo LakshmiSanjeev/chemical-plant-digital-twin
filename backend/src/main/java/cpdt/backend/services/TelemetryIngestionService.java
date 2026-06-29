@@ -1,6 +1,6 @@
 package cpdt.backend.services;
 
-import cpdt.backend.InvalidTelemetryException;
+import cpdt.backend.exception.InvalidTelemetryException;
 import cpdt.backend.twin.TwinStateStore;
 import cpdt.common.dto.TelemetryPacket;
 import cpdt.common.utils.TelemetrySerializer;
@@ -27,7 +27,7 @@ public class TelemetryIngestionService {
         TelemetryPacket packet;
 
         try {
-            packet = TelemetrySerializer.fromJson(payload);
+            packet = TelemetrySerializer.fromJson(payload, TelemetryPacket.class);
         } catch (RuntimeException ex) {
             throw new InvalidTelemetryException(
                     "Failed to deserialize telemetry payload.",
@@ -42,8 +42,7 @@ public class TelemetryIngestionService {
 
         twinStateStore.update(packet);
 
-        alertEvaluationService.evaluate(packet)
-                .ifPresent(alertPersistenceService::save);
+        alertEvaluationService.evaluate(packet).ifPresent(alertPersistenceService::save);
 
         return packet;
     }

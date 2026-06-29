@@ -6,6 +6,7 @@ import cpdt.common.dto.AlertMessage;
 import cpdt.common.dto.TelemetryPacket;
 import cpdt.common.enums.AlarmState;
 import cpdt.common.enums.AlertSeverity;
+import cpdt.common.enums.DeviceStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,19 +18,16 @@ import java.util.UUID;
 public class AlertEvaluationService {
 
     private final AlarmThresholdRepository alarmThresholdRepository;
+    private final DeviceStatusService deviceStatusService;
     private final AlarmStateService alarmStateService;
 
     public Optional<AlertMessage> evaluate(TelemetryPacket telemetryPacket) {
-
-        System.out.println("[ALERT] Entered evaluate()");
 
         Optional<AlarmThresholdEntity> thresholdOptional =
                 alarmThresholdRepository.findByProcessAreaAndMeasurementType(
                         telemetryPacket.processArea(),
                         telemetryPacket.measurementType()
                 );
-
-        System.out.println("Threshold present = " + thresholdOptional.isPresent());
 
         if (thresholdOptional.isEmpty()) {
             return Optional.empty();
@@ -44,11 +42,15 @@ public class AlertEvaluationService {
         AlertSeverity newSeverity =
                 determineSeverity(telemetryPacket.value(), threshold);
 
-        System.out.println("Severity = " + newSeverity);
-
         if (newSeverity == null) {
 
             alarmStateService.clearAlarm(telemetryPacket.deviceId());
+
+            deviceStatusService.updateStatus(
+                    telemetryPacket.deviceId(),
+                    DeviceStatus.ONLINE,
+                    "All alarm conditions cleared."
+            );
 
             return Optional.empty();
         }
@@ -58,6 +60,12 @@ public class AlertEvaluationService {
                         telemetryPacket.deviceId(),
                         newSeverity
                 );
+
+        deviceStatusService.updateStatus(
+                telemetryPacket.deviceId(),
+                mapStatus(newSeverity),
+                buildMessage(telemetryPacket, newSeverity)
+        );
 
         if (alarmState == AlarmState.NO_CHANGE) {
             return Optional.empty();
@@ -70,8 +78,6 @@ public class AlertEvaluationService {
                 buildMessage(telemetryPacket, newSeverity),
                 System.currentTimeMillis()
         );
-
-        System.out.println("Returning AlertMessage");
 
         return Optional.of(alert);
     }
@@ -103,12 +109,6 @@ public class AlertEvaluationService {
             TelemetryPacket telemetryPacket,
             AlertSeverity severity) {
 
-        System.out.println("========== ALERT EVALUATION ==========");
-        System.out.println("Device: " + telemetryPacket.deviceId());
-        System.out.println("Measurement: " + telemetryPacket.measurementType());
-        System.out.println("Area: " + telemetryPacket.processArea());
-        System.out.println("Value: " + telemetryPacket.value());
-
         return String.format(
                 "%s: %s is %.2f %s in %s.",
                 severity,
@@ -117,5 +117,14 @@ public class AlertEvaluationService {
                 telemetryPacket.measurementType().getUnit(),
                 telemetryPacket.processArea()
         );
+    }
+
+    private DeviceStatus mapStatus(AlertSeverity severity) {
+
+        return switch (severity) {
+            case WARNING_LOW, WARNING_HIGH -> DeviceStatus.WARNING;
+            case CRITICAL_LOW, CRITICAL_HIGH -> DeviceStatus.CRITICAL;
+            case INFO -> DeviceStatus.ONLINE;
+        };
     }
 }

@@ -1,6 +1,6 @@
 package cpdt.backend.mqtt;
 
-import cpdt.backend.InvalidTelemetryException;
+import cpdt.backend.exception.InvalidTelemetryException;
 import cpdt.backend.services.TelemetryIngestionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

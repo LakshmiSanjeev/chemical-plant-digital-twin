@@ -10,8 +10,7 @@ import java.util.concurrent.ConcurrentMap;
 @Service
 public class AlarmStateService {
 
-    private final ConcurrentMap<String, AlertSeverity> activeAlarms =
-            new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, AlertSeverity> activeAlarms = new ConcurrentHashMap<>();
 
     public AlarmState updateAlarmState(
             String deviceId,
@@ -37,8 +36,6 @@ public class AlarmStateService {
             return AlarmState.DEESCALATED;
         }
 
-        // Same alarm level (e.g. WARNING_LOW -> WARNING_HIGH).
-        // Update the stored severity but don't treat it as a state transition.
         activeAlarms.put(deviceId, newSeverity);
         return AlarmState.NO_CHANGE;
     }
