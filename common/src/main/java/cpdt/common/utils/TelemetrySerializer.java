@@ -2,7 +2,6 @@ package cpdt.common.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import cpdt.common.dto.TelemetryPacket;
 
 import java.io.IOException;
 
@@ -14,39 +13,39 @@ public final class TelemetrySerializer {
         throw new UnsupportedOperationException("Utility class cannot be instantiated");
     }
 
-    public static byte[] toJson(TelemetryPacket packet) {
+    public static byte[] toJson(Object object) {
         try {
-            return OBJECT_MAPPER.writeValueAsBytes(packet);
+            return OBJECT_MAPPER.writeValueAsBytes(object);
         }
         catch (JsonProcessingException e) {
-            throw new RuntimeException("Failed to serialize telemetry packet", e);
+            throw new RuntimeException("Failed to serialize object", e);
         }
     }
 
-    public static String toJsonString(TelemetryPacket packet) {
+    public static String toJsonString(Object object) {
         try {
-            return OBJECT_MAPPER.writeValueAsString(packet);
+            return OBJECT_MAPPER.writeValueAsString(object);
         }
         catch (JsonProcessingException e) {
-            throw new RuntimeException("Failed to serialize telemetry packet", e);
+            throw new RuntimeException("Failed to serialize object", e);
         }
     }
 
-    public static TelemetryPacket fromJson(byte[] payload) {
+    public static <T> T fromJson(byte[] payload, Class<T> clazz) {
         try {
-            return OBJECT_MAPPER.readValue(payload, TelemetryPacket.class);
+            return OBJECT_MAPPER.readValue(payload, clazz);
         }
         catch (IOException e) {
-            throw new RuntimeException("Failed to deserialize telemetry packet", e);
+            throw new RuntimeException("Failed to deserialize object", e);
         }
     }
 
-    public static TelemetryPacket fromJson(String json) {
+    public static <T> T fromJson(String json, Class<T> clazz) {
         try {
-            return OBJECT_MAPPER.readValue(json, TelemetryPacket.class);
+            return OBJECT_MAPPER.readValue(json, clazz);
         }
         catch (IOException e) {
-            throw new RuntimeException("Failed to deserialize telemetry packet", e);
+            throw new RuntimeException("Failed to deserialize object", e);
         }
     }
 }

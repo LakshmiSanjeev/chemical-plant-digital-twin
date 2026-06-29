@@ -115,4 +115,5 @@ chemical-plant-digital-twin/
 │   │   ├── test/
 │   │       ├── java/
 │   └── pom.xml
+├── directory-tree.txt
 └── pom.xml

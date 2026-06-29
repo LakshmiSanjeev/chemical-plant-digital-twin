@@ -5,5 +5,6 @@ public enum DeviceStatus {
     OFFLINE,
     WARNING,
     CRITICAL,
-    MAINTENANCE
+    MAINTENANCE,
+    RETIRED
 }

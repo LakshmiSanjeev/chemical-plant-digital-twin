@@ -11,6 +11,7 @@ public enum DeviceType {
     LEVEL_SENSOR("LEVEL"),
     GAS_SENSOR("GAS"),
     PH_SENSOR("PH"),
+    HUMIDITY_SENSOR("HUM"),
 
     // Mechanical Condition Monitoring
     VIBRATION_SENSOR("VIB"),

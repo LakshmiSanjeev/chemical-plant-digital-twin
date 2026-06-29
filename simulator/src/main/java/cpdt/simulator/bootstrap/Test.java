@@ -8,6 +8,7 @@ import cpdt.simulator.SensorDevice;
 import cpdt.simulator.devices.*;
 import cpdt.simulator.engine.*;
 import cpdt.simulator.environment.PlantEnvironment;
+import cpdt.simulator.mqtt.DeviceStatusSubscriber;
 import cpdt.simulator.mqtt.MqttTelemetryPublisher;
 import cpdt.simulator.scenarios.*;
 
@@ -103,6 +104,15 @@ public class Test {
                         publisher,
                         scenarioEngine
                 );
+
+        DeviceStatusSubscriber subscriber =
+                new DeviceStatusSubscriber(
+                        "tcp://localhost:1883",
+                        "cpdt-status-subscriber",
+                        simulatorEngine
+                );
+
+        subscriber.start();
 
         OverheatScenario reactorOverheat =
                 new OverheatScenario(
@@ -205,6 +215,7 @@ public class Test {
         Thread.sleep(30_000);
 
         simulatorEngine.stop();
+        subscriber.stop();
         publisher.shutdown();
 
         System.out.println("MQTT Stress Test Complete");

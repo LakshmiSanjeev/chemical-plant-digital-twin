@@ -114,4 +114,22 @@ public class SimulatorEngine {
             e.printStackTrace();
         }
     }
+
+    public void updateDeviceStatus(String deviceId, DeviceStatus status) {
+
+        for (SensorDevice sensor : sensors) {
+
+            if (sensor.getDeviceId().equals(deviceId)) {
+
+                sensor.setStatus(status);
+
+                System.out.println(
+                        "Updated " + deviceId +
+                                " to " + status
+                );
+
+                return;
+            }
+        }
+    }
 }
