@@ -2,6 +2,16 @@ package cpdt.common.enums;
 
 import lombok.Getter;
 
+/**
+ * Enumerates every physical quantity that can be measured by the
+ * simulated devices.
+ *
+ * <p>Each measurement type includes a display name and its associated
+ * engineering unit, allowing telemetry to remain self-describing across
+ * the system.
+ *
+ * @since 1.0
+ */
 @Getter
 public enum MeasurementType {
 

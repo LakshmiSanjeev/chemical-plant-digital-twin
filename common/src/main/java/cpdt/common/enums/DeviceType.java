@@ -2,6 +2,16 @@ package cpdt.common.enums;
 
 import lombok.Getter;
 
+/**
+ * Enumerates every supported device type that can exist within the
+ * Chemical Plant Digital Twin Platform.
+ *
+ * <p>Each device type is associated with a unique identifier prefix used
+ * by {@link cpdt.common.utils.DeviceIdGenerator} when generating device
+ * identifiers.
+ *
+ * @since 1.0
+ */
 @Getter
 public enum DeviceType {
     // Process Sensors

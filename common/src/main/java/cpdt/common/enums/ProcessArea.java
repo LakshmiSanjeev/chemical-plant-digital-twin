@@ -3,6 +3,17 @@ package cpdt.common.enums;
 import java.util.EnumMap;
 import java.util.Map;
 
+/**
+ * Represents the distinct process areas within the simulated chemical plant.
+ *
+ * <p>Each process area maintains a predefined set of baseline
+ * environmental values for every supported {@link MeasurementType}.
+ * These values are used to initialize the plant environment and serve as
+ * the nominal operating conditions observed by sensors before scenarios
+ * modify them.
+ *
+ * @since 1.0
+ */
 public enum ProcessArea {
 
     REACTOR_SECTION(Map.of(

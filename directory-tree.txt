@@ -11,13 +11,19 @@ chemical-plant-digital-twin/
 │   │   │   │           ├── controllers/
 │   │   │   │           │   ├── AlertController.java
 │   │   │   │           │   ├── DeviceController.java
+│   │   │   │           │   ├── TelemetryController.java
 │   │   │   │           │   └── TwinController.java
 │   │   │   │           ├── entities/
 │   │   │   │           │   ├── AlarmThresholdEntity.java
 │   │   │   │           │   ├── AlertEntity.java
 │   │   │   │           │   ├── DeviceEntity.java
 │   │   │   │           │   └── TelemetryEntity.java
+│   │   │   │           ├── exception/
+│   │   │   │           │   ├── ErrorResponse.java
+│   │   │   │           │   ├── GlobalExceptionHandler.java
+│   │   │   │           │   └── InvalidTelemetryException.java
 │   │   │   │           ├── mqtt/
+│   │   │   │           │   ├── DeviceStatusPublisher.java
 │   │   │   │           │   └── TelemetryMessageHandler.java
 │   │   │   │           ├── repositories/
 │   │   │   │           │   ├── AlarmThresholdRepository.java
@@ -30,13 +36,14 @@ chemical-plant-digital-twin/
 │   │   │   │           │   ├── AlertFetch.java
 │   │   │   │           │   ├── AlertPersistenceService.java
 │   │   │   │           │   ├── DevicePersistenceService.java
+│   │   │   │           │   ├── DeviceStatusService.java
 │   │   │   │           │   ├── TelemetryIngestionService.java
-│   │   │   │           │   └── TelemetryPersistenceService.java
+│   │   │   │           │   ├── TelemetryPersistenceService.java
+│   │   │   │           │   └── TelemetryQueryService.java
 │   │   │   │           ├── twin/
 │   │   │   │           │   ├── TwinDeviceState.java
 │   │   │   │           │   └── TwinStateStore.java
-│   │   │   │           ├── BackendApplication.java
-│   │   │   │           └── InvalidTelemetryException.java
+│   │   │   │           └── BackendApplication.java
 │   │   │   ├── resources/
 │   │   │       ├── alarm-thresholds.sql
 │   │   │       └── application.properties
@@ -56,6 +63,7 @@ chemical-plant-digital-twin/
 │   │   │   │       ├── common/
 │   │   │   │           ├── dto/
 │   │   │   │           │   ├── AlertMessage.java
+│   │   │   │           │   ├── DeviceStatusMessage.java
 │   │   │   │           │   └── TelemetryPacket.java
 │   │   │   │           ├── enums/
 │   │   │   │           │   ├── AlarmState.java
@@ -101,6 +109,7 @@ chemical-plant-digital-twin/
 │   │   │   │           │   ├── PlantEnvironment.java
 │   │   │   │           │   └── ProcessAreaEnvironment.java
 │   │   │   │           ├── mqtt/
+│   │   │   │           │   ├── DeviceStatusSubscriber.java
 │   │   │   │           │   ├── MqttTelemetryPublisher.java
 │   │   │   │           │   └── mosquittoStart.txt
 │   │   │   │           ├── scenarios/
