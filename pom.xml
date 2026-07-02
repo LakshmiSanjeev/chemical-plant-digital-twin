@@ -100,7 +100,7 @@
 
                         <execution>
                             <id>report</id>
-                            <phase>test</phase>
+                            <phase>verify</phase>
                             <goals>
                                 <goal>report</goal>
                             </goals>
@@ -110,6 +110,17 @@
 
             </plugins>
         </pluginManagement>
+
+        <plugins>
+
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
+
+        </plugins>
+
+
     </build>
 
 </project>

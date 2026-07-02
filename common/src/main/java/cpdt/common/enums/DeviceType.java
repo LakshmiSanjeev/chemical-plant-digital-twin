@@ -6,7 +6,8 @@ import lombok.Getter;
  * Enumerates every supported device type that can exist within the
  * Chemical Plant Digital Twin Platform.
  *
- * <p>Each device type is associated with a unique identifier prefix used
+ * <p>Contains current implementations and future additions. Each device type is
+ * associated with a unique identifier prefix used
  * by {@link cpdt.common.utils.DeviceIdGenerator} when generating device
  * identifiers.
  *

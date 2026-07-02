@@ -51,12 +51,11 @@ public final class DeviceIdGenerator {
      * @throws NullPointerException if {@code deviceType} is {@code null}
      */
     public static String generateDeviceId(DeviceType deviceType) {
-        AtomicInteger counter =
-                DEVICE_COUNTERS.computeIfAbsent(deviceType, key -> new AtomicInteger(0));
+        AtomicInteger counter = DEVICE_COUNTERS.computeIfAbsent(deviceType, key -> new AtomicInteger(0));
         int sequenceNumber = counter.incrementAndGet();
         return String.format("%s-%03d", deviceType.getPrefix(), sequenceNumber);
     }
-    /** Counter reset utility for testing */
+
     public static void resetCounters() {
         DEVICE_COUNTERS.clear();
     }

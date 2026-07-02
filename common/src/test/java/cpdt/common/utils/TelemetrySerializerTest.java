@@ -83,18 +83,16 @@ class TelemetrySerializerTest {
     @Test
     void shouldThrowRuntimeExceptionForInvalidJsonString() {
         String invalidJson = "{ invalid json }";
-        RuntimeException exception = assertThrows(
-                RuntimeException.class, () -> TelemetrySerializer.fromJson(invalidJson, TelemetryPacket.class)
-        );
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> TelemetrySerializer.fromJson(invalidJson, TelemetryPacket.class));
         assertTrue(exception.getMessage().contains("Failed to deserialize"));
     }
 
     @Test
     void shouldThrowRuntimeExceptionForInvalidJsonBytes() {
         byte[] invalidBytes = "not-json".getBytes();
-        RuntimeException exception = assertThrows(
-                RuntimeException.class, () -> TelemetrySerializer.fromJson(invalidBytes, TelemetryPacket.class)
-        );
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> TelemetrySerializer.fromJson(invalidBytes, TelemetryPacket.class));
         assertTrue(exception.getMessage().contains("Failed to deserialize"));
     }
 
@@ -106,8 +104,7 @@ class TelemetrySerializerTest {
 
     @Test
     void shouldDeserializeJsonNullToNullObject() {
-        TelemetryPacket packet =
-                TelemetrySerializer.fromJson("null", TelemetryPacket.class);
+        TelemetryPacket packet = TelemetrySerializer.fromJson("null", TelemetryPacket.class);
         assertNull(packet);
     }
 }

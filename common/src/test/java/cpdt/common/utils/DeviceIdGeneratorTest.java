@@ -17,7 +17,6 @@ class DeviceIdGeneratorTest{
 
     @BeforeEach
     void resetGenerator() {
-        // Makes sure each test starts with a clean slate.
         DeviceIdGenerator.resetCounters();
     }
 

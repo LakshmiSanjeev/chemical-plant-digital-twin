@@ -84,11 +84,7 @@ public abstract class Device {
      * @param type category of device
      * @param location physical location of the device within the plant
      */
-    protected Device(String deviceId,
-                     String name,
-                     DeviceType type,
-                     Location location) {
-
+    protected Device(String deviceId, String name, DeviceType type, Location location) {
         this.deviceId = deviceId;
         this.name = name;
         this.type = type;

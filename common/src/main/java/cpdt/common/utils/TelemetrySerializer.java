@@ -3,7 +3,6 @@ package cpdt.common.utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cpdt.common.dto.TelemetryPacket;
-import cpdt.common.enums.DeviceType;
 
 import java.io.IOException;
 

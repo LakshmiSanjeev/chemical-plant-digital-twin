@@ -3,8 +3,8 @@ chemical-plant-digital-twin/
 │   ├── src/
 │   │   ├── main/
 │   │   │   ├── java/
-│   │   │   │   ├── cpdt/
-│   │   │   │       ├── backend/
+│   │   │   │   └── cpdt/
+│   │   │   │       └── backend/
 │   │   │   │           ├── config/
 │   │   │   │           │   ├── AlarmThreshold.java
 │   │   │   │           │   └── MqttIngestionConfig.java
@@ -44,13 +44,13 @@ chemical-plant-digital-twin/
 │   │   │   │           │   ├── TwinDeviceState.java
 │   │   │   │           │   └── TwinStateStore.java
 │   │   │   │           └── BackendApplication.java
-│   │   │   ├── resources/
+│   │   │   └── resources/
 │   │   │       ├── alarm-thresholds.sql
 │   │   │       └── application.properties
-│   │   ├── test/
-│   │       ├── java/
-│   │           ├── cpdt/
-│   │               ├── backend/
+│   │   └── test/
+│   │       └── java/
+│   │           └── cpdt/
+│   │               └── backend/
 │   │                   └── BackendApplicationTests.java
 │   ├── mvnw
 │   ├── mvnw.cmd
@@ -59,8 +59,8 @@ chemical-plant-digital-twin/
 │   ├── src/
 │   │   ├── main/
 │   │   │   ├── java/
-│   │   │   │   ├── cpdt/
-│   │   │   │       ├── common/
+│   │   │   │   └── cpdt/
+│   │   │   │       └── common/
 │   │   │   │           ├── dto/
 │   │   │   │           │   ├── AlertMessage.java
 │   │   │   │           │   ├── DeviceStatusMessage.java
@@ -72,25 +72,31 @@ chemical-plant-digital-twin/
 │   │   │   │           │   ├── DeviceType.java
 │   │   │   │           │   ├── MeasurementType.java
 │   │   │   │           │   └── ProcessArea.java
-│   │   │   │           ├── events/
-│   │   │   │           │   └── SystemEvent.java
 │   │   │   │           ├── models/
 │   │   │   │           │   ├── Device.java
 │   │   │   │           │   └── Location.java
-│   │   │   │           ├── utils/
+│   │   │   │           └── utils/
 │   │   │   │               ├── DeviceIdGenerator.java
 │   │   │   │               ├── TelemetrySerializer.java
 │   │   │   │               └── TopicBuilder.java
-│   │   │   ├── resources/
-│   │   ├── test/
-│   │       ├── java/
+│   │   │   └── resources/
+│   │   └── test/
+│   │       └── java/
+│   │           └── cpdt/
+│   │               └── common/
+│   │                   ├── utils/
+│   │                   │   ├── DeviceIdGeneratorTest.java
+│   │                   │   ├── TelemetrySerializerTest.java
+│   │                   │   └── TopicBuilderTest.java
+│   │                   └── EnumsTest.java
 │   └── pom.xml
+├── docs/
 ├── simulator/
 │   ├── src/
 │   │   ├── main/
 │   │   │   ├── java/
-│   │   │   │   ├── cpdt/
-│   │   │   │       ├── simulator/
+│   │   │   │   └── cpdt/
+│   │   │   │       └── simulator/
 │   │   │   │           ├── bootstrap/
 │   │   │   │           │   └── Test.java
 │   │   │   │           ├── devices/
@@ -99,7 +105,8 @@ chemical-plant-digital-twin/
 │   │   │   │           │   ├── LevelSensor.java
 │   │   │   │           │   ├── PhSensor.java
 │   │   │   │           │   ├── PressureSensor.java
-│   │   │   │           │   └── TemperatureSensor.java
+│   │   │   │           │   ├── TemperatureSensor.java
+│   │   │   │           │   └── package-info.java
 │   │   │   │           ├── engine/
 │   │   │   │           │   ├── ConsoleTelemetryPublisher.java
 │   │   │   │           │   ├── ScenarioEngine.java
@@ -120,9 +127,9 @@ chemical-plant-digital-twin/
 │   │   │   │           │   ├── OverpressureScenario.java
 │   │   │   │           │   └── Scenario.java
 │   │   │   │           └── SensorDevice.java
-│   │   │   ├── resources/
-│   │   ├── test/
-│   │       ├── java/
+│   │   │   └── resources/
+│   │   └── test/
+│   │       └── java/
 │   └── pom.xml
 ├── directory-tree.txt
 └── pom.xml

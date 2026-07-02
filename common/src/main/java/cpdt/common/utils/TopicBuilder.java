@@ -5,8 +5,7 @@ import cpdt.common.dto.TelemetryPacket;
 import java.util.Objects;
 
 /**
- * Utility class for constructing MQTT topic strings from
- * {@link TelemetryPacket} metadata.
+ * Utility class for constructing MQTT topic strings from {@link TelemetryPacket} metadata.
  *
  * <p>Generated topics follow the format:
  * {@code cpdt/telemetry/{processArea}/{deviceType}/{deviceId}}.
@@ -30,11 +29,6 @@ public final class TopicBuilder {
      */
     public static String build(TelemetryPacket packet) {
         Objects.requireNonNull(packet, "Telemetry packet cannot be null");
-        return String.format(
-                "cpdt/telemetry/%s/%s/%s",
-                packet.processArea(),
-                packet.deviceType(),
-                packet.deviceId()
-        );
+        return String.format("cpdt/telemetry/%s/%s/%s", packet.processArea(), packet.deviceType(), packet.deviceId());
     }
 }

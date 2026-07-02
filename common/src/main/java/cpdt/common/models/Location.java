@@ -2,7 +2,6 @@ package cpdt.common.models;
 
 import cpdt.common.enums.ProcessArea;
 
-
 /**
  * Immutable value object representing the physical location of a device
  * within the simulated chemical plant.
@@ -23,4 +22,5 @@ import cpdt.common.enums.ProcessArea;
 public record Location(
         String locationId,
         String name,
-        ProcessArea area) { }
+        ProcessArea area
+) { }
