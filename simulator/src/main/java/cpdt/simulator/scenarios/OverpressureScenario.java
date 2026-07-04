@@ -4,6 +4,22 @@ import cpdt.common.enums.MeasurementType;
 import cpdt.common.enums.ProcessArea;
 import cpdt.simulator.environment.PlantEnvironment;
 
+/**
+ * Simulates a gradual pressure buildup within a process area.
+ *
+ * <p>This scenario progressively increases the environmental pressure
+ * until a specified target pressure is reached. After deactivation,
+ * the pressure gradually returns to its normal operating value through
+ * the simulation update cycle.
+ *
+ * <p>This scenario provides realistic pressure variations for testing
+ * abnormal process conditions and evaluating Digital Twin monitoring
+ * capabilities.
+ *
+ * @author Lakshmi Sanjeev
+ * @since 1.0
+ */
+
 public class OverpressureScenario extends Scenario {
 
     private final double targetPressureIncrease;
@@ -25,7 +41,7 @@ public class OverpressureScenario extends Scenario {
 
     @Override
     public void deactivate() {
-        // Handled dynamically via update loop
+        // simulation loop will gradually lower values back to baseline
     }
 
     @Override

@@ -84,26 +84,11 @@ The `dto` package contains immutable Data Transfer Objects used for communicatio
 
 These objects define the structure of messages exchanged through MQTT without containing any business logic.
 
-Classes include:
-
-- TelemetryPacket
-- AlertMessage
-- DeviceStatusMessage
-
 ### 4.2 enums
 
 The `enums` package defines all system-wide enumerations.
 
 Enumerations provide standardized values throughout the application, preventing invalid states and improving code readability.
-
-The package includes:
-
-- AlarmState
-- AlertSeverity
-- DeviceStatus
-- DeviceType
-- MeasurementType
-- ProcessArea
 
 ### 4.3 models
 
@@ -111,22 +96,11 @@ The `models` package defines the core domain objects shared by all modules.
 
 These objects represent real-world entities within the chemical plant.
 
-Current models include:
-
-- Device
-- Location
-
 These models are independent of persistence frameworks and simulation logic.
 
 ### 4.4 utils
 
 The `utils` package contains reusable helper classes that perform common operations required across the project.
-
-Current utilities include:
-
-- DeviceIdGenerator
-- TopicBuilder
-- TelemetrySerializer
 
 Each utility class is stateless and designed for reuse.
 
@@ -255,18 +229,17 @@ It encapsulates serialization logic, allowing messaging components to remain ind
 
 The Common module is intentionally independent of application-specific functionality.
 
-It has **no dependency** on:
+It depends on:
 
-- Simulator
-- Backend
+- Jackson Databind
+
+The common module has no dependency on the Backend module or the simulator module.
 
 Instead, both application modules depend on the Common module. This dependency structure minimizes coupling and ensures that shared definitions remain reusable.
 
 ---
 
 ## 7. Design Decisions
-
-Several architectural decisions guided the design of the Common module.
 
 - **Centralized Shared Definitions:** All shared classes are maintained in a single module to eliminate duplication and maintain consistency across the application.
 - **Immutable DTOs:** Communication objects are implemented as immutable records wherever possible. Immutable data structures simplify concurrent processing and reduce unintended side effects.

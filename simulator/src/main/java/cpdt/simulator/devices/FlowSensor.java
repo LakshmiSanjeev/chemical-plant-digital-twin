@@ -10,6 +10,13 @@ import cpdt.simulator.environment.PlantEnvironment;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * Represents a simulated Differential Pressure (DP) Flow Meter
+ * used within the chemical plant simulation.
+ *
+ * @author Lakshmi Sanjeev
+ * @since 1.0
+ */
 public class FlowSensor extends SensorDevice {
 
     private static final double DEFAULT_MIN_RANGE = 0.0;
@@ -88,9 +95,8 @@ public class FlowSensor extends SensorDevice {
             case PIPELINE_SECTION -> 0.4;
             case FEED_SECTION -> 0.3;
             case DISTILLATION_SECTION -> 0.6;
-            case UTILITIES_SECTION -> 0.5;
+            case UTILITIES_SECTION, COOLING_SECTION -> 0.5;
             case STORAGE_SECTION -> 1.2;
-            case COOLING_SECTION -> 0.5;
         };
     }
 

@@ -100,7 +100,6 @@ public class Test {
         SimulatorEngine simulatorEngine =
                 new SimulatorEngine(
                         sensors,
-                        plantEnvironment,
                         publisher,
                         scenarioEngine
                 );

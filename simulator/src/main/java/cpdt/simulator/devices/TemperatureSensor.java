@@ -10,6 +10,13 @@ import cpdt.simulator.environment.PlantEnvironment;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * Represents a simulated resistance temperature detector
+ * similar to a Pt100 RTD used within the chemical plant simulation.
+ *
+ * @author Lakshmi Sanjeev
+ * @since 1.0
+ */
 public class TemperatureSensor extends SensorDevice {
 
     private static final double DEFAULT_MIN_RANGE = -50.0;

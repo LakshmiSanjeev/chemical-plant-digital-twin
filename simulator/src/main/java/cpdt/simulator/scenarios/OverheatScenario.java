@@ -4,6 +4,21 @@ import cpdt.common.enums.MeasurementType;
 import cpdt.common.enums.ProcessArea;
 import cpdt.simulator.environment.PlantEnvironment;
 
+/**
+ * Simulates a gradual temperature increase within a process area.
+ *
+ * <p>This scenario progressively raises the environmental temperature
+ * until a specified target increase is reached. When the scenario is
+ * cleared, the temperature gradually returns to its baseline value
+ * through successive simulation updates.
+ *
+ * <p>This scenario is used to model abnormal thermal operating
+ * conditions and evaluate system behavior during overheating events.
+ *
+ * @author Lakshmi Sanjeev
+ * @since 1.0
+ */
+
 public class OverheatScenario extends Scenario {
 
     private final double targetTemperatureIncrease;
@@ -30,8 +45,6 @@ public class OverheatScenario extends Scenario {
 
     @Override
     public void update(long deltaTimeMs) {
-        double currentTotalEnvVal = plantEnvironment.getValue(getAffectedArea(), MeasurementType.TEMPERATURE);
-
         if (isActive()) {
             if (currentAddedTemperature < targetTemperatureIncrease) {
                 double increment = heatRatePerMs * deltaTimeMs;

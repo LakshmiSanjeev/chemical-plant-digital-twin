@@ -10,6 +10,13 @@ import cpdt.simulator.environment.PlantEnvironment;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * Represents a simulated piezoresistive pressure transmitter
+ * used within the chemical plant simulation.
+ *
+ * @author Lakshmi Sanjeev
+ * @since 1.0
+ */
 public class PressureSensor extends SensorDevice {
 
     private static final double DEFAULT_MIN_RANGE = 0.0;

@@ -10,7 +10,12 @@ import java.util.Map;
  * environmental values for every supported {@link MeasurementType}.
  * These values are used to initialize the plant environment and serve as
  * the nominal operating conditions observed by sensors before scenarios
- * modify them.
+ * modify them.</p>
+ *
+ * <p>The default values defined for each process area are illustrative and
+ * may be customized to match the characteristics of a specific real-world
+ * process. Consequently, the meaning and operating conditions associated
+ * with each enum constant depend on the plant or system being simulated.</p>
  *
  * @since 1.0
  */

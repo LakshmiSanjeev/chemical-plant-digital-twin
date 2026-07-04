@@ -4,6 +4,22 @@ import cpdt.common.enums.MeasurementType;
 import cpdt.common.enums.ProcessArea;
 import cpdt.simulator.environment.PlantEnvironment;
 
+/**
+ * Simulates a gradual hazardous gas leak within a process area.
+ *
+ * <p>This scenario progressively increases the gas concentration in the
+ * simulated plant environment until a specified target concentration is
+ * reached. Once deactivated, the gas concentration gradually returns to
+ * its original operating level through the simulation update cycle.
+ *
+ * <p>This scenario provides realistic environmental changes for testing
+ * gas monitoring, abnormal condition detection, and Digital Twin
+ * response under leak conditions.
+ *
+ * @author Lakshmi Sanjeev
+ * @since 1.0
+ */
+
 public class GasLeakScenario extends Scenario {
 
     private final double targetLeakConcentrationPpm;
