@@ -1,165 +1,197 @@
 chemical-plant-digital-twin/
-├── backend/
-│   ├── src/
-│   │   ├── main/
-│   │   │   ├── java/
-│   │   │   │   └── cpdt/
-│   │   │   │       └── backend/
-│   │   │   │           ├── config/
-│   │   │   │           │   ├── AlarmThreshold.java
-│   │   │   │           │   └── MqttIngestionConfig.java
-│   │   │   │           ├── controllers/
-│   │   │   │           │   ├── AlertController.java
-│   │   │   │           │   ├── DeviceController.java
-│   │   │   │           │   ├── TelemetryController.java
-│   │   │   │           │   └── TwinController.java
-│   │   │   │           ├── entities/
-│   │   │   │           │   ├── AlarmThresholdEntity.java
-│   │   │   │           │   ├── AlertEntity.java
-│   │   │   │           │   ├── DeviceEntity.java
-│   │   │   │           │   └── TelemetryEntity.java
-│   │   │   │           ├── exception/
-│   │   │   │           │   ├── ErrorResponse.java
-│   │   │   │           │   ├── GlobalExceptionHandler.java
-│   │   │   │           │   └── InvalidTelemetryException.java
-│   │   │   │           ├── mqtt/
-│   │   │   │           │   ├── DeviceStatusPublisher.java
-│   │   │   │           │   └── TelemetryMessageHandler.java
-│   │   │   │           ├── repositories/
-│   │   │   │           │   ├── AlarmThresholdRepository.java
-│   │   │   │           │   ├── AlertRepository.java
-│   │   │   │           │   ├── DeviceRepository.java
-│   │   │   │           │   └── TelemetryRepository.java
-│   │   │   │           ├── services/
-│   │   │   │           │   ├── AlarmStateService.java
-│   │   │   │           │   ├── AlertEvaluationService.java
-│   │   │   │           │   ├── AlertFetch.java
-│   │   │   │           │   ├── AlertPersistenceService.java
-│   │   │   │           │   ├── DevicePersistenceService.java
-│   │   │   │           │   ├── DeviceStatusService.java
-│   │   │   │           │   ├── TelemetryIngestionService.java
-│   │   │   │           │   ├── TelemetryPersistenceService.java
-│   │   │   │           │   └── TelemetryQueryService.java
-│   │   │   │           ├── twin/
-│   │   │   │           │   ├── TwinDeviceState.java
-│   │   │   │           │   └── TwinStateStore.java
-│   │   │   │           └── BackendApplication.java
-│   │   │   └── resources/
-│   │   │       ├── alarm-thresholds.sql
-│   │   │       └── application.properties
-│   │   └── test/
-│   │       └── java/
-│   │           └── cpdt/
-│   │               └── backend/
-│   │                   └── BackendApplicationTests.java
-│   ├── mvnw
-│   ├── mvnw.cmd
-│   └── pom.xml
-├── common/
-│   ├── src/
-│   │   ├── main/
-│   │   │   ├── java/
-│   │   │   │   └── cpdt/
-│   │   │   │       └── common/
-│   │   │   │           ├── dto/
-│   │   │   │           │   ├── AlertMessage.java
-│   │   │   │           │   ├── DeviceStatusMessage.java
-│   │   │   │           │   ├── TelemetryPacket.java
-│   │   │   │           │   └── package-info.java
-│   │   │   │           ├── enums/
-│   │   │   │           │   ├── AlarmState.java
-│   │   │   │           │   ├── AlertSeverity.java
-│   │   │   │           │   ├── DeviceStatus.java
-│   │   │   │           │   ├── DeviceType.java
-│   │   │   │           │   ├── MeasurementType.java
-│   │   │   │           │   ├── ProcessArea.java
-│   │   │   │           │   └── package-info.java
-│   │   │   │           ├── models/
-│   │   │   │           │   ├── Device.java
-│   │   │   │           │   ├── Location.java
-│   │   │   │           │   └── package-info.java
-│   │   │   │           └── utils/
-│   │   │   │               ├── DeviceIdGenerator.java
-│   │   │   │               ├── TelemetrySerializer.java
-│   │   │   │               ├── TopicBuilder.java
-│   │   │   │               └── package-info.java
-│   │   │   └── resources/
-│   │   └── test/
-│   │       └── java/
-│   │           └── cpdt/
-│   │               └── common/
-│   │                   ├── utils/
-│   │                   │   ├── DeviceIdGeneratorTest.java
-│   │                   │   ├── TelemetrySerializerTest.java
-│   │                   │   └── TopicBuilderTest.java
-│   │                   └── EnumsTest.java
-│   └── pom.xml
-├── docs/
-│   ├── architecture/
-│   │   ├── Backend_Module_Design.md
-│   │   ├── Common_Module_Design.md
-│   │   └── Simulator_Module_Design.md
-│   ├── test-coverage/
-│   │   ├── common/
-│   │   │   └── Coverage_JaCoCo.pdf
-│   │   └── simulator/
-│   │       └── Coverage_JaCoCo.pdf
-│   └── testing/
-│       ├── Common_Module_Unit_Test.md
-│       └── Simulator_Module_Unit_Test.md
-├── simulator/
-│   ├── src/
-│   │   ├── main/
-│   │   │   ├── java/
-│   │   │   │   └── cpdt/
-│   │   │   │       └── simulator/
-│   │   │   │           ├── bootstrap/
-│   │   │   │           │   └── Test.java
-│   │   │   │           ├── devices/
-│   │   │   │           │   ├── FlowSensor.java
-│   │   │   │           │   ├── GasSensor.java
-│   │   │   │           │   ├── LevelSensor.java
-│   │   │   │           │   ├── PhSensor.java
-│   │   │   │           │   ├── PressureSensor.java
-│   │   │   │           │   ├── TemperatureSensor.java
-│   │   │   │           │   └── package-info.java
-│   │   │   │           ├── engine/
-│   │   │   │           │   ├── ConsoleTelemetryPublisher.java
-│   │   │   │           │   ├── ScenarioEngine.java
-│   │   │   │           │   ├── SimulatorEngine.java
-│   │   │   │           │   ├── TelemetryPublisher.java
-│   │   │   │           │   └── package-info.java
-│   │   │   │           ├── environment/
-│   │   │   │           │   ├── PlantEnvironment.java
-│   │   │   │           │   ├── ProcessAreaEnvironment.java
-│   │   │   │           │   └── package-info.java
-│   │   │   │           ├── mqtt/
-│   │   │   │           │   ├── DeviceStatusSubscriber.java
-│   │   │   │           │   ├── MqttTelemetryPublisher.java
-│   │   │   │           │   └── package-info.java
-│   │   │   │           ├── scenarios/
-│   │   │   │           │   ├── EquipmentFailureScenario.java
-│   │   │   │           │   ├── FireScenario.java
-│   │   │   │           │   ├── GasLeakScenario.java
-│   │   │   │           │   ├── OverheatScenario.java
-│   │   │   │           │   ├── OverpressureScenario.java
-│   │   │   │           │   ├── Scenario.java
-│   │   │   │           │   └── package-info.java
-│   │   │   │           ├── SensorDevice.java
-│   │   │   │           └── package-info.java
-│   │   │   └── resources/
-│   │   └── test/
-│   │       └── java/
-│   │           └── cpdt/
-│   │               └── simulator/
-│   │                   ├── utilities/
-│   │                   │   ├── TestScenario.java
-│   │                   │   └── TestSensor.java
-│   │                   ├── EnvironmentTest.java
-│   │                   ├── ScenarioEngineTest.java
-│   │                   ├── ScenarioTest.java
-│   │                   ├── SensorDeviceTest.java
-│   │                   └── SensorSubclassTest.java
-│   └── pom.xml
-├── directory-tree.txt
-└── pom.xml
+├── backend/ (3.1 MB)
+│   ├── src/ (126.8 KB)
+│   │   ├── main/ (66.3 KB)
+│   │   │   ├── java/ (63.6 KB)
+│   │   │   │   └── cpdt/ (63.6 KB)
+│   │   │   │       └── backend/ (63.6 KB)
+│   │   │   │           ├── config/ (5.7 KB)
+│   │   │   │           │   ├── MqttIngestionConfig.java (5.2 KB)
+│   │   │   │           │   └── package-info.java (526.0 B)
+│   │   │   │           ├── controllers/ (8.4 KB)
+│   │   │   │           │   ├── AlertController.java (1.8 KB)
+│   │   │   │           │   ├── DeviceController.java (1.8 KB)
+│   │   │   │           │   ├── TelemetryController.java (2.1 KB)
+│   │   │   │           │   ├── TwinController.java (2.2 KB)
+│   │   │   │           │   └── package-info.java (545.0 B)
+│   │   │   │           ├── entities/ (7.2 KB)
+│   │   │   │           │   ├── AlarmThresholdEntity.java (2.0 KB)
+│   │   │   │           │   ├── AlertEntity.java (1.4 KB)
+│   │   │   │           │   ├── DeviceEntity.java (1.4 KB)
+│   │   │   │           │   ├── TelemetryEntity.java (2.0 KB)
+│   │   │   │           │   └── package-info.java (551.0 B)
+│   │   │   │           ├── exception/ (5.8 KB)
+│   │   │   │           │   ├── ErrorResponse.java (579.0 B)
+│   │   │   │           │   ├── GlobalExceptionHandler.java (3.8 KB)
+│   │   │   │           │   ├── InvalidTelemetryException.java (1.1 KB)
+│   │   │   │           │   └── package-info.java (400.0 B)
+│   │   │   │           ├── mqtt/ (6.1 KB)
+│   │   │   │           │   ├── DeviceStatusPublisher.java (3.8 KB)
+│   │   │   │           │   ├── TelemetryMessageHandler.java (1.8 KB)
+│   │   │   │           │   └── package-info.java (536.0 B)
+│   │   │   │           ├── repositories/ (3.2 KB)
+│   │   │   │           │   ├── AlarmThresholdRepository.java (759.0 B)
+│   │   │   │           │   ├── AlertRepository.java (543.0 B)
+│   │   │   │           │   ├── DeviceRepository.java (474.0 B)
+│   │   │   │           │   ├── TelemetryRepository.java (1.1 KB)
+│   │   │   │           │   └── package-info.java (375.0 B)
+│   │   │   │           ├── services/ (21.9 KB)
+│   │   │   │           │   ├── AlarmStateService.java (3.4 KB)
+│   │   │   │           │   ├── AlertEvaluationService.java (5.0 KB)
+│   │   │   │           │   ├── AlertFetch.java (1.9 KB)
+│   │   │   │           │   ├── AlertPersistenceService.java (1.2 KB)
+│   │   │   │           │   ├── DevicePersistenceService.java (1.7 KB)
+│   │   │   │           │   ├── DeviceStatusService.java (1.7 KB)
+│   │   │   │           │   ├── TelemetryIngestionService.java (3.6 KB)
+│   │   │   │           │   ├── TelemetryPersistenceService.java (1.6 KB)
+│   │   │   │           │   ├── TelemetryQueryService.java (1.5 KB)
+│   │   │   │           │   └── package-info.java (462.0 B)
+│   │   │   │           ├── twin/ (4.4 KB)
+│   │   │   │           │   ├── TwinDeviceState.java (1.1 KB)
+│   │   │   │           │   ├── TwinStateStore.java (3.0 KB)
+│   │   │   │           │   └── package-info.java (375.0 B)
+│   │   │   │           ├── BackendApplication.java (305.0 B)
+│   │   │   │           └── package-info.java (481.0 B)
+│   │   │   └── resources/ (2.7 KB)
+│   │   │       ├── alarm-thresholds.sql (2.0 KB)
+│   │   │       └── application.properties (610.0 B)
+│   │   └── test/ (60.5 KB)
+│   │       └── java/ (60.5 KB)
+│   │           └── cpdt/ (60.5 KB)
+│   │               └── backend/ (60.5 KB)
+│   │                   ├── controllers/ (13.4 KB)
+│   │                   │   ├── AlertControllerTest.java (3.3 KB)
+│   │                   │   ├── DeviceControllerTest.java (3.0 KB)
+│   │                   │   ├── TelemetryControllerTest.java (3.9 KB)
+│   │                   │   └── TwinControllerTest.java (3.2 KB)
+│   │                   ├── services/ (37.1 KB)
+│   │                   │   ├── AlarmEvaluationTest.java (9.0 KB)
+│   │                   │   ├── AlarmStateServiceTest.java (3.0 KB)
+│   │                   │   ├── AlertFetchTest.java (2.2 KB)
+│   │                   │   ├── AlertPersistenceTest.java (1.6 KB)
+│   │                   │   ├── DevicePersistenceTest.java (3.6 KB)
+│   │                   │   ├── DeviceStatusServiceTest.java (2.7 KB)
+│   │                   │   ├── TelemetryIngestionTest.java (10.5 KB)
+│   │                   │   ├── TelemetryPersistenceTest.java (2.4 KB)
+│   │                   │   └── TelemetryQueryServiceTest.java (2.1 KB)
+│   │                   ├── BackendApplicationTests.java (205.0 B)
+│   │                   ├── MqttIngestionTest.java (2.9 KB)
+│   │                   ├── TelemetryHandlerTest.java (1.9 KB)
+│   │                   └── TwinStateStoreTest.java (4.9 KB)
+│   ├── mvnw (11.5 KB)
+│   ├── mvnw.cmd (8.1 KB)
+│   └── pom.xml (2.1 KB)
+├── common/ (568.9 KB)
+│   ├── src/ (36.8 KB)
+│   │   ├── main/ (23.4 KB)
+│   │   │   ├── java/ (23.4 KB)
+│   │   │   │   └── cpdt/ (23.4 KB)
+│   │   │   │       └── common/ (23.4 KB)
+│   │   │   │           ├── dto/ (3.4 KB)
+│   │   │   │           │   ├── AlertMessage.java (791.0 B)
+│   │   │   │           │   ├── DeviceStatusMessage.java (708.0 B)
+│   │   │   │           │   ├── TelemetryPacket.java (1.2 KB)
+│   │   │   │           │   └── package-info.java (713.0 B)
+│   │   │   │           ├── enums/ (7.6 KB)
+│   │   │   │           │   ├── AlarmState.java (454.0 B)
+│   │   │   │           │   ├── AlertSeverity.java (388.0 B)
+│   │   │   │           │   ├── DeviceStatus.java (472.0 B)
+│   │   │   │           │   ├── DeviceType.java (1.1 KB)
+│   │   │   │           │   ├── MeasurementType.java (945.0 B)
+│   │   │   │           │   ├── ProcessArea.java (3.8 KB)
+│   │   │   │           │   └── package-info.java (536.0 B)
+│   │   │   │           ├── models/ (4.4 KB)
+│   │   │   │           │   ├── Device.java (3.1 KB)
+│   │   │   │           │   ├── Location.java (826.0 B)
+│   │   │   │           │   └── package-info.java (515.0 B)
+│   │   │   │           └── utils/ (8.0 KB)
+│   │   │   │               ├── DeviceIdGenerator.java (2.3 KB)
+│   │   │   │               ├── TelemetrySerializer.java (4.2 KB)
+│   │   │   │               ├── TopicBuilder.java (1.0 KB)
+│   │   │   │               └── package-info.java (506.0 B)
+│   │   │   └── resources/ (0.0 B)
+│   │   └── test/ (13.4 KB)
+│   │       └── java/ (13.4 KB)
+│   │           └── cpdt/ (13.4 KB)
+│   │               └── common/ (13.4 KB)
+│   │                   ├── utils/ (9.3 KB)
+│   │                   │   ├── DeviceIdGeneratorTest.java (1.9 KB)
+│   │                   │   ├── TelemetrySerializerTest.java (4.4 KB)
+│   │                   │   └── TopicBuilderTest.java (3.0 KB)
+│   │                   └── EnumsTest.java (4.1 KB)
+│   └── pom.xml (916.0 B)
+├── docs/ (2.5 MB)
+│   ├── architecture/ (31.5 KB)
+│   │   ├── Backend_Module_Design.md (13.4 KB)
+│   │   ├── Common_Module_Design.md (7.7 KB)
+│   │   └── Simulator_Module_Design.md (10.5 KB)
+│   ├── javadocs/ (2.1 MB)
+│   │   └── apidocs/ (2.1 MB)
+│   ├── test-coverage/ (262.1 KB)
+│   │   ├── backend/ (90.3 KB)
+│   │   │   └── Coverage_JaCoCo.pdf (90.3 KB)
+│   │   ├── common/ (71.4 KB)
+│   │   │   └── Coverage_JaCoCo.pdf (71.4 KB)
+│   │   └── simulator/ (100.4 KB)
+│   │       └── Coverage_JaCoCo.pdf (100.4 KB)
+│   └── testing/ (36.8 KB)
+│       ├── Backend_Module_Unit_Test.md (15.7 KB)
+│       ├── Common_Module_Unit_Test.md (8.7 KB)
+│       └── Simulator_Module_Unit_Test.md (12.4 KB)
+├── simulator/ (982.7 KB)
+│   ├── src/ (126.2 KB)
+│   │   ├── main/ (96.2 KB)
+│   │   │   ├── java/ (96.2 KB)
+│   │   │   │   └── cpdt/ (96.2 KB)
+│   │   │   │       └── simulator/ (96.2 KB)
+│   │   │   │           ├── bootstrap/ (10.2 KB)
+│   │   │   │           │   └── Test.java (10.2 KB)
+│   │   │   │           ├── devices/ (33.0 KB)
+│   │   │   │           │   ├── FlowSensor.java (5.2 KB)
+│   │   │   │           │   ├── GasSensor.java (5.6 KB)
+│   │   │   │           │   ├── LevelSensor.java (5.5 KB)
+│   │   │   │           │   ├── PhSensor.java (5.8 KB)
+│   │   │   │           │   ├── PressureSensor.java (5.0 KB)
+│   │   │   │           │   ├── TemperatureSensor.java (5.4 KB)
+│   │   │   │           │   └── package-info.java (489.0 B)
+│   │   │   │           ├── engine/ (11.1 KB)
+│   │   │   │           │   ├── ConsoleTelemetryPublisher.java (593.0 B)
+│   │   │   │           │   ├── ScenarioEngine.java (3.4 KB)
+│   │   │   │           │   ├── SimulatorEngine.java (5.7 KB)
+│   │   │   │           │   ├── TelemetryPublisher.java (682.0 B)
+│   │   │   │           │   └── package-info.java (758.0 B)
+│   │   │   │           ├── environment/ (8.3 KB)
+│   │   │   │           │   ├── PlantEnvironment.java (3.3 KB)
+│   │   │   │           │   ├── ProcessAreaEnvironment.java (4.6 KB)
+│   │   │   │           │   └── package-info.java (420.0 B)
+│   │   │   │           ├── mqtt/ (10.0 KB)
+│   │   │   │           │   ├── DeviceStatusSubscriber.java (3.4 KB)
+│   │   │   │           │   ├── MqttTelemetryPublisher.java (6.1 KB)
+│   │   │   │           │   └── package-info.java (550.0 B)
+│   │   │   │           ├── scenarios/ (16.8 KB)
+│   │   │   │           │   ├── EquipmentFailureScenario.java (2.5 KB)
+│   │   │   │           │   ├── FireScenario.java (2.1 KB)
+│   │   │   │           │   ├── GasLeakScenario.java (2.7 KB)
+│   │   │   │           │   ├── OverheatScenario.java (2.6 KB)
+│   │   │   │           │   ├── OverpressureScenario.java (2.6 KB)
+│   │   │   │           │   ├── Scenario.java (3.7 KB)
+│   │   │   │           │   └── package-info.java (552.0 B)
+│   │   │   │           ├── SensorDevice.java (6.1 KB)
+│   │   │   │           └── package-info.java (723.0 B)
+│   │   │   └── resources/ (0.0 B)
+│   │   └── test/ (30.0 KB)
+│   │       └── java/ (30.0 KB)
+│   │           └── cpdt/ (30.0 KB)
+│   │               └── simulator/ (30.0 KB)
+│   │                   ├── utilities/ (2.4 KB)
+│   │                   │   ├── TestScenario.java (995.0 B)
+│   │                   │   └── TestSensor.java (1.4 KB)
+│   │                   ├── EnvironmentTest.java (6.3 KB)
+│   │                   ├── ScenarioEngineTest.java (2.5 KB)
+│   │                   ├── ScenarioTest.java (5.0 KB)
+│   │                   ├── SensorDeviceTest.java (3.6 KB)
+│   │                   └── SensorSubclassTest.java (10.1 KB)
+│   └── pom.xml (1.1 KB)
+├── README.md (5.2 KB)
+├── directory-tree.txt (9.0 KB)
+└── pom.xml (3.9 KB)

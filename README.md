@@ -75,23 +75,23 @@ telemetry in PostgreSQL, and exposes REST APIs for monitoring.
                Chemical Plant
                      │
                      ▼
-              Simulator Module
+               Simulator Module
                      │
-              MQTT Telemetry
+                MQTT Telemetry
                      │
                Mosquitto Broker
                      │
-          Spring Boot Backend
+             Spring Boot Backend
                      │
      ┌───────────────┼────────────────┐
      │               │                │
- Validation    PostgreSQL      Digital Twin
+ Validation      PostgreSQL      Digital Twin
      │               │                │
      └───────────────┼────────────────┘
                      │
                  REST APIs
                      │
-              Dashboard / Client
+             Dashboard / Client
 ```
 
 ------------------------------------------------------------------------
