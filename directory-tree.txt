@@ -64,21 +64,25 @@ chemical-plant-digital-twin/
 │   │   │   │           ├── dto/
 │   │   │   │           │   ├── AlertMessage.java
 │   │   │   │           │   ├── DeviceStatusMessage.java
-│   │   │   │           │   └── TelemetryPacket.java
+│   │   │   │           │   ├── TelemetryPacket.java
+│   │   │   │           │   └── package-info.java
 │   │   │   │           ├── enums/
 │   │   │   │           │   ├── AlarmState.java
 │   │   │   │           │   ├── AlertSeverity.java
 │   │   │   │           │   ├── DeviceStatus.java
 │   │   │   │           │   ├── DeviceType.java
 │   │   │   │           │   ├── MeasurementType.java
-│   │   │   │           │   └── ProcessArea.java
+│   │   │   │           │   ├── ProcessArea.java
+│   │   │   │           │   └── package-info.java
 │   │   │   │           ├── models/
 │   │   │   │           │   ├── Device.java
-│   │   │   │           │   └── Location.java
+│   │   │   │           │   ├── Location.java
+│   │   │   │           │   └── package-info.java
 │   │   │   │           └── utils/
 │   │   │   │               ├── DeviceIdGenerator.java
 │   │   │   │               ├── TelemetrySerializer.java
-│   │   │   │               └── TopicBuilder.java
+│   │   │   │               ├── TopicBuilder.java
+│   │   │   │               └── package-info.java
 │   │   │   └── resources/
 │   │   └── test/
 │   │       └── java/
@@ -91,6 +95,18 @@ chemical-plant-digital-twin/
 │   │                   └── EnumsTest.java
 │   └── pom.xml
 ├── docs/
+│   ├── architecture/
+│   │   ├── Backend_Module_Design.md
+│   │   ├── Common_Module_Design.md
+│   │   └── Simulator_Module_Design.md
+│   ├── test-coverage/
+│   │   ├── common/
+│   │   │   └── Coverage_JaCoCo.pdf
+│   │   └── simulator/
+│   │       └── Coverage_JaCoCo.pdf
+│   └── testing/
+│       ├── Common_Module_Unit_Test.md
+│       └── Simulator_Module_Unit_Test.md
 ├── simulator/
 │   ├── src/
 │   │   ├── main/
@@ -111,25 +127,39 @@ chemical-plant-digital-twin/
 │   │   │   │           │   ├── ConsoleTelemetryPublisher.java
 │   │   │   │           │   ├── ScenarioEngine.java
 │   │   │   │           │   ├── SimulatorEngine.java
-│   │   │   │           │   └── TelemetryPublisher.java
+│   │   │   │           │   ├── TelemetryPublisher.java
+│   │   │   │           │   └── package-info.java
 │   │   │   │           ├── environment/
 │   │   │   │           │   ├── PlantEnvironment.java
-│   │   │   │           │   └── ProcessAreaEnvironment.java
+│   │   │   │           │   ├── ProcessAreaEnvironment.java
+│   │   │   │           │   └── package-info.java
 │   │   │   │           ├── mqtt/
 │   │   │   │           │   ├── DeviceStatusSubscriber.java
 │   │   │   │           │   ├── MqttTelemetryPublisher.java
-│   │   │   │           │   └── mosquittoStart.txt
+│   │   │   │           │   └── package-info.java
 │   │   │   │           ├── scenarios/
 │   │   │   │           │   ├── EquipmentFailureScenario.java
 │   │   │   │           │   ├── FireScenario.java
 │   │   │   │           │   ├── GasLeakScenario.java
 │   │   │   │           │   ├── OverheatScenario.java
 │   │   │   │           │   ├── OverpressureScenario.java
-│   │   │   │           │   └── Scenario.java
-│   │   │   │           └── SensorDevice.java
+│   │   │   │           │   ├── Scenario.java
+│   │   │   │           │   └── package-info.java
+│   │   │   │           ├── SensorDevice.java
+│   │   │   │           └── package-info.java
 │   │   │   └── resources/
 │   │   └── test/
 │   │       └── java/
+│   │           └── cpdt/
+│   │               └── simulator/
+│   │                   ├── utilities/
+│   │                   │   ├── TestScenario.java
+│   │                   │   └── TestSensor.java
+│   │                   ├── EnvironmentTest.java
+│   │                   ├── ScenarioEngineTest.java
+│   │                   ├── ScenarioTest.java
+│   │                   ├── SensorDeviceTest.java
+│   │                   └── SensorSubclassTest.java
 │   └── pom.xml
 ├── directory-tree.txt
 └── pom.xml

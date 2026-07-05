@@ -2,9 +2,25 @@ package cpdt.backend.entities;
 
 import cpdt.common.enums.MeasurementType;
 import cpdt.common.enums.ProcessArea;
+
 import jakarta.persistence.*;
 import lombok.*;
 
+/**
+ * Represents alarm threshold configuration for a process measurement.
+ *
+ * <p>This entity stores the warning and critical threshold values used
+ * by the Digital Twin backend to evaluate incoming telemetry. A unique
+ * threshold configuration exists for each combination of process area
+ * and measurement type, allowing alarm evaluation rules to be configured
+ * independently across the plant.
+ *
+ * <p>The stored threshold values include hysteresis settings and an
+ * enable flag to support configurable alarm processing.
+ *
+ * @author Lakshmi Sanjeev
+ * @since 1.0
+ */
 @Entity
 @Table(
     name = "alarm_thresholds",

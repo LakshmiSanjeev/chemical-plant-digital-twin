@@ -8,6 +8,19 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 
+/**
+ * Persists generated alerts to the database.
+ *
+ * <p>This service converts alert messages produced by the alarm
+ * evaluation process into persistent entities and stores them using
+ * the alert repository.
+ *
+ * <p>It separates alert generation from database persistence within
+ * the backend architecture.
+ *
+ * @author Lakshmi Sanjeev
+ * @since 1.0
+ */
 @Service
 @RequiredArgsConstructor
 public class AlertPersistenceService {
@@ -22,7 +35,6 @@ public class AlertPersistenceService {
                 .message(alertMessage.message())
                 .timestamp(Instant.ofEpochMilli(alertMessage.timestamp()))
                 .build();
-
         alertRepository.save(entity);
     }
 }

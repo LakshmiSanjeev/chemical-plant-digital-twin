@@ -4,11 +4,27 @@ import cpdt.common.enums.DeviceStatus;
 import cpdt.common.enums.DeviceType;
 import cpdt.common.enums.MeasurementType;
 import cpdt.common.enums.ProcessArea;
+
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
 
+/**
+ * Represents a telemetry measurement received from a plant device.
+ *
+ * <p>This entity stores telemetry published by the simulator, including
+ * device information, process location, measurement type, measured value,
+ * operational status, and timestamp. Each received telemetry message is
+ * persisted to provide a complete historical record of plant operation.
+ *
+ * <p>These records serve as the primary data source for historical
+ * analysis, Digital Twin synchronization, alarm evaluation, and client
+ * queries.
+ *
+ * @author Lakshmi Sanjeev
+ * @since 1.0
+ */
 @Entity
 @Table(
     name = "telemetry",

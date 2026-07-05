@@ -10,6 +10,20 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Manages the persistence of registered device information.
+ *
+ * <p>This service creates new device records or updates existing ones
+ * using incoming telemetry data. It maintains the backend's persistent
+ * device registry and provides retrieval operations for registered
+ * devices.
+ *
+ * <p>The service ensures that device metadata remains synchronized with
+ * the latest telemetry received from the simulator.
+ *
+ * @author Lakshmi Sanjeev
+ * @since 1.0
+ */
 @Service
 @RequiredArgsConstructor
 public class DevicePersistenceService {
@@ -17,8 +31,7 @@ public class DevicePersistenceService {
     private final DeviceRepository deviceRepository;
 
     public void registerOrUpdate(TelemetryPacket packet) {
-        DeviceEntity device = deviceRepository.findById(packet.deviceId())
-                .orElseGet(() -> DeviceEntity.builder().deviceId(packet.deviceId()).build());
+        DeviceEntity device = deviceRepository.findById(packet.deviceId()).orElseGet(() -> DeviceEntity.builder().deviceId(packet.deviceId()).build());
         device.setName(packet.deviceName());
         device.setDeviceType(packet.deviceType());
         device.setProcessArea(packet.processArea());
